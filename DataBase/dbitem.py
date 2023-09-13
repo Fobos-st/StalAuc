@@ -42,3 +42,28 @@ def get_item_image(my_item_id: str) -> str:
         item_id = a["data"].split("/")[-1][:-5]
         if item_id == my_item_id:
             return "database/dbitem/" + pris + a["icon"]
+
+
+def is_it_artifact(my_item_id: str) -> bool:
+    """
+    :param my_item_id: id предмета
+    :return: Являеться ли прдемет артефактом
+    """
+    name = get_item_image(my_item_id)
+    status = name.split("/")[4]
+    if status == "artefact":
+        return True
+    else:
+        return False
+
+
+def search_item_name_by_id(my_item_id: str) -> str:
+    """
+    :param my_item_id: id предмета
+    :return: название предмета
+    """
+    item_db = item_db_ru
+    for a in item_db:
+        item_id = a["data"].split("/")[-1][:-5]
+        if item_id == my_item_id:
+            return a["name"]["lines"]["ru"]
