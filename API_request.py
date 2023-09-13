@@ -100,7 +100,7 @@ async def check_item() -> None:
                     try:
                         await bot.send_message(user[0],
                                                notification_text.format(search_item_name_by_id(user[1]),
-                                               lot["buyoutPrice"])
+                                               lot["buyoutPrice"]))
                         continue
                     except Exception:
                         pass
@@ -114,7 +114,7 @@ async def check_item() -> None:
                             try:
                                 await bot.send_message(user[0],
                                                        notification_text.format(search_item_name_by_id(user[1]),
-                                                                                lot_more_200["buyoutPrice"])
+                                                                                lot_more_200["buyoutPrice"]))
                                 continue
                             except Exception:
                                 pass
