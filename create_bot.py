@@ -3,6 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
 from background_proces import check_item
+from config import BOT_TOKEN
 
 
 async def on_bot_start_up(dispatcher: Dispatcher) -> None:
@@ -16,5 +17,5 @@ def create_bot_factory() -> None:
 
 
 storage = MemoryStorage()
-bot = Bot('YOUR TOKEN')
+bot = Bot(BOT_TOKEN)
 dp = Dispatcher(bot, storage=storage)
