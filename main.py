@@ -1,11 +1,11 @@
 import logging
-import handlers
-from database import dbsql
-from create_bot import create_bot_factory
-from handlers.client_handler import feedback, start, get_auc_lot, user_request
-from handlers.admin_handler import content, report
-from create_bot import dp
 
+import handlers
+from create_bot import create_bot_factory
+from create_bot import dp
+from database import dbsql
+from handlers.admin_handler import content, report
+from handlers.client_handler import feedback, start, get_auc_lot, user_request
 
 handlers.client_handler.start.register_client_handlers_start(dp)
 handlers.client_handler.feedback.register_client_handlers_feedback(dp)

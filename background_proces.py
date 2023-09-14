@@ -1,12 +1,14 @@
 import asyncio
 import json
-from database.dbsql import print_all_users
-from database import dbitem
-from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK, PARAMS_CHECK_MORE_200_LOTS
-from text import notification_text
+
 from aiogram import Bot
-from config import  BOT_TOKEN
+
 from API_request import make_http_get_request
+from config import BOT_TOKEN
+from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK, PARAMS_CHECK_MORE_200_LOTS
+from database import dbitem
+from database.dbsql import print_all_users
+from text import notification_text
 
 bot = Bot(BOT_TOKEN)
 

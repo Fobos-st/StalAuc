@@ -1,5 +1,7 @@
-import aiohttp
 import json
+
+import aiohttp
+
 from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, first_querystring
 from text import text_auc_lot
 

@@ -1,9 +1,11 @@
 import asyncio
+
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
-from config import BOT_TOKEN
+
 import background_proces
+from config import BOT_TOKEN
 
 
 async def on_bot_start_up(dispatcher: Dispatcher) -> None:

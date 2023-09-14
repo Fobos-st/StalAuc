@@ -1,8 +1,9 @@
-from aiogram import types
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher import FSMContext
 from aiogram import Dispatcher
-from create_bot import dp, bot
+from aiogram import types
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+
+from create_bot import bot
 from database.dbsql import get_all_id_users
 
 

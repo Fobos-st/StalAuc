@@ -1,8 +1,9 @@
 from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from ..keyboard import main_kb
-from database.dbsql import reg
+
 from create_bot import bot
+from database.dbsql import reg
+from ..keyboard import main_kb
 
 
 # @dp.message_handler(commands=['start'])

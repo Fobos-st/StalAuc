@@ -1,5 +1,5 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram import types
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 main_button = [
     [types.KeyboardButton(text="Проверка цены"),
