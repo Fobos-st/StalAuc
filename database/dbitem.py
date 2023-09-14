@@ -5,7 +5,7 @@ def open_database_sc() -> dict:
     """
     :return: Выводит список предметов из БД
     """
-    with open('stalcraft-database/ru/listing.json', "rb") as json_file:
+    with open('database/stalcraft-database/ru/listing.json', "rb") as json_file:
         item_db = json.load(json_file)
         return item_db
 

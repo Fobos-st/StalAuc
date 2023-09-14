@@ -22,8 +22,8 @@ async def get_auc_item(data) -> str:
     :param data: callback данные
     :return: Список выбранных предметов с аукциона
     """
-    change = data[0]
     page = int(data[1])
+    change = data[0]
     if change == 'remove_page':
         page -= 2
 
@@ -50,3 +50,28 @@ async def get_auc_item(data) -> str:
     else:
         print(False, 'text')
         return False, text
+
+
+async def get_auc_item_first(id_item: str) -> str:
+    """
+    :param id_item: id предмета
+    :return: Список выбранных предметов с аукциона
+    """
+    url = f"https://eapi.stalcraft.net/ru/auction/{id_item}/lots"
+    data = await make_http_get_request(url, headers, params=querystring)
+    text = ''
+    data = json.loads(data)
+    print(data)
+    lots = data["lots"] # KeyError: 'lots'
+    for lot in lots:
+        text += f"""
+Количество: {lot["amount"]}
+Ставка: {lot["startPrice"]}
+Цена выкупа: {lot["buyoutPrice"]}
+Время окончание лота: {lot["endTime"][:10]} {lot["endTime"][11:19]}
+"""
+    if text:
+        pass
+    else:
+        return 'Даного предмета нету на аукционе('
+    return text

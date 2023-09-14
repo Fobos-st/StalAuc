@@ -17,6 +17,8 @@ notification_text = """
 
 QUALITY = ("Обычный", "Необычный", "Особый", "Редкий", "Исключительный")
 
+input_item_name_messeage = 'Введите название предмета, соблюдая язык и правильно название(не обязательно писать полное)'
+
 
 def current_request(user_id: int) -> str:
     data = get_request_user(user_id)
