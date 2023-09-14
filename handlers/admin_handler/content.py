@@ -1,0 +1,27 @@
+from aiogram import types
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from create_bot import dp, bot
+from DataBase.sqlite import get_all_id_users
+
+
+class CreateRupor(StatesGroup):
+    text = State()
+
+
+@dp.message_handler(commands=['rupor'])
+async def send_message_all_users(message: types.Message):
+    if message.from_user.id == 1254191582:
+        await message.answer('Введите текст')
+        await CreateRupor.text.set()
+
+
+@dp.message_handler(state=CreateRupor.text)
+async def send_ticket_admin(message: types.Message, state: FSMContext):
+    await state.finish()
+    data = get_all_id_users()
+    for user in data:
+        try:
+            await bot.send_message(user[0], message.text)
+        except Exception:
+            pass
+    await message.answer("Пользователи получили сообщение")
