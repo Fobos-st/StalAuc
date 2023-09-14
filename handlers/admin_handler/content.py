@@ -19,9 +19,10 @@ async def send_message_all_users(message: types.Message):
 async def send_ticket_admin(message: types.Message, state: FSMContext):
     await state.finish()
     data = get_all_id_users()
+    blocked_user = 0
     for user in data:
         try:
             await bot.send_message(user[0], message.text)
         except Exception:
-            pass
-    await message.answer("Пользователи получили сообщение")
+            blocked_user += 1
+    await message.answer(f"Пользователи получили сообщение, из них не получили {blocked_user}")
