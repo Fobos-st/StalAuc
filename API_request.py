@@ -1,6 +1,6 @@
 import aiohttp
 import json
-from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS
+from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, first_querystring
 from text import text_auc_lot
 
 
@@ -48,7 +48,6 @@ async def get_auc_item(data) -> str:
         page += 1
         return len(lots) < 10 or (int(data['total']) // 10) == page, text
     else:
-        print(False, 'text')
         return False, text
 
 
@@ -58,20 +57,19 @@ async def get_auc_item_first(id_item: str) -> str:
     :return: Список выбранных предметов с аукциона
     """
     url = f"https://eapi.stalcraft.net/ru/auction/{id_item}/lots"
-    data = await make_http_get_request(url, headers, params=querystring)
-    text = ''
+    data = await make_http_get_request(url, HEADERS, params=first_querystring)
+    text_msg = ''
     data = json.loads(data)
-    print(data)
     lots = data["lots"] # KeyError: 'lots'
     for lot in lots:
-        text += f"""
+        text_msg += f"""
 Количество: {lot["amount"]}
 Ставка: {lot["startPrice"]}
 Цена выкупа: {lot["buyoutPrice"]}
 Время окончание лота: {lot["endTime"][:10]} {lot["endTime"][11:19]}
 """
-    if text:
+    if text_msg:
         pass
     else:
         return 'Даного предмета нету на аукционе('
-    return text
+    return text_msg

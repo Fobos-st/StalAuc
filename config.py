@@ -9,3 +9,5 @@ URL_GET_ACTIVE_AUC_LOTS = "https://eapi.stalcraft.net/ru/auction/{}/lots"
 
 PARAMS_CHECK = {"limit": "200", "sort": "buyout_price", "additional": "true"}
 PARAMS_CHECK_MORE_200_LOTS = {"limit": "200", "sort": "buyout_price", "additional": "true", "offset": "200"}
+
+first_querystring = {"limit": "10", "sort": "buyout_price", "additional": "true", "order": "desc"}

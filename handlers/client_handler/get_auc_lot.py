@@ -6,7 +6,7 @@ import text
 from create_bot import dp, bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
-from ..keyboard import cancel_inline_keyboard
+from ..keyboard import cancel_inline_keyboard, get_control_menu
 
 
 class WaitItemName(StatesGroup):
@@ -40,7 +40,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
         ]
         ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
 
-        await bot.send_message(message.from_user.id, await API_request.get_auc_item(id_item),
+        await bot.send_message(message.from_user.id, await API_request.get_auc_item_first(id_item),
                                reply_markup=ikb)
         await state.finish()
     else:
@@ -66,12 +66,43 @@ async def cmd_request(callback_query: types.CallbackQuery, state: FSMContext):
         ]
         ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
         await state.finish()
-        text = await API_request.get_auc_item(callback_data)
+        text = await API_request.get_auc_item_first(callback_data)
         if text == 'Даного предмета нету на аукционе(':
             await bot.send_message(callback_query.from_user.id, text)
         else:
             await bot.send_message(callback_query.from_user.id, text,
                                    reply_markup=ikb)
+
+
+@dp.callback_query_handler()
+async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data == "Отмена":
+        await state.finish()
+        await bot.send_message(callback_query.from_user.id, ":-(")
+    if callback_query.data.split()[1] == 'skip':  #изменить проверку этого условия для скипа(сделать так что другие callback_data пропускает мимо)
+        return
+    last_page, text_msg = await API_request.get_auc_item(callback_query.data.split())
+    print(last_page)
+    if last_page:
+        page = int(callback_query.data.split()[1]) + 1
+        id_item = callback_query.data.split()[2]
+        if callback_query.data.split()[3] == 'asc':
+            auc_table_inline_button = [
+                [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} asc"),
+                 types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip")],
+                [types.InlineKeyboardButton(text="Выкуп 🔼", callback_data=f"none {page} {id_item} desc")]
+            ]
+        else:
+            auc_table_inline_button = [
+                [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} desc"),
+                 types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip")],
+                [types.InlineKeyboardButton(text="Выкуп 🔽", callback_data=f"none {page} {id_item} asc")]
+            ]
+        ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
+    else:
+        ikb = await get_control_menu(callback_query.data)
+    await callback_query.message.edit_text(text_msg,
+                                           reply_markup=ikb)
 
 
 def register_client_handlers_get_auc_lot(dp: Dispatcher):
