@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from ..keyboard import main_kb
 from database.dbsql import reg
-from create_bot import dp, bot
+from create_bot import bot
 
 
 # @dp.message_handler(commands=['start'])

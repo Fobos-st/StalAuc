@@ -1,11 +1,12 @@
 from aiogram import types, Dispatcher
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+
 import API_request
 import database.dbitem
 import handlers.keyboard
 import text
-from create_bot import dp, bot
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher import FSMContext
+from create_bot import bot
 from ..keyboard import cancel_inline_keyboard, get_control_menu
 
 
@@ -74,7 +75,7 @@ async def cmd_request(callback_query: types.CallbackQuery, state: FSMContext):
                                    reply_markup=ikb)
 
 
-@dp.callback_query_handler()
+# @dp.callback_query_handler()
 async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
@@ -82,7 +83,6 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
     if callback_query.data.split()[1] == 'skip':  #изменить проверку этого условия для скипа(сделать так что другие callback_data пропускает мимо)
         return
     last_page, text_msg = await API_request.get_auc_item(callback_query.data.split())
-    print(last_page)
     if last_page:
         page = int(callback_query.data.split()[1]) + 1
         id_item = callback_query.data.split()[2]
@@ -106,6 +106,6 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
 
 
 def register_client_handlers_get_auc_lot(dp: Dispatcher):
-    dp.register_message_handler(cmd_item_check_check_item, content_types=['text'])
+    dp.register_message_handler(cmd_item_check_check_item, content_types=['text'], text="Проверка цены")
     dp.register_message_handler(get_item_name, content_types=['text'], state=WaitItemName.text)
     dp.register_callback_query_handler(cmd_request, state=WaitItemName.text)
