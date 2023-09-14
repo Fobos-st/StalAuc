@@ -1,4 +1,4 @@
-from aiogram import types
+from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from create_bot import dp, bot
@@ -21,3 +21,8 @@ async def send_ticket_admin(message: types.Message, state: FSMContext):
     await bot.send_message(1254191582, f"""Собщение от {message.from_user.first_name},
 {message.text}
 """)
+
+
+def register_client_handlers_feedback(dp: Dispatcher):
+    dp.register_message_handler(cmd_ticket, commands=['ticket'])
+    dp.register_message_handler(send_ticket_admin, state=CreateTicket.text)

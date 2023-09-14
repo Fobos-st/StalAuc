@@ -1,10 +1,14 @@
 import asyncio
 import json
-from DataBase.sqlite import print_all_users
+from database.dbsql import print_all_users
+from database import dbitem
 from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK, PARAMS_CHECK_MORE_200_LOTS
 from text import notification_text
-from create_bot import bot
+from aiogram import Bot
+from config import  BOT_TOKEN
 from API_request import make_http_get_request
+
+bot = Bot(BOT_TOKEN)
 
 
 async def checking_conditions(user: tuple, lot: dict) -> bool:
@@ -19,11 +23,17 @@ async def checking_conditions(user: tuple, lot: dict) -> bool:
     except ValueError:
         if user[3] == 'None':
             param2 = True
+    except KeyError:
+        if user[4] == 'All':
+            param3 = True
 
     try:
         if int(user[4]) <= lot["additional"]['ptn']:
             param3 = True
     except ValueError:
+        if user[4] == 'All':
+            param3 = True
+    except KeyError:
         if user[4] == 'All':
             param3 = True
 
@@ -52,7 +62,7 @@ async def check_item() -> None:
                 if await checking_conditions(user, lot):
                     try:
                         await bot.send_message(user[0],
-                                               notification_text.format(search_item_name_by_id(user[1]),
+                                               notification_text.format(dbitem.search_item_name_by_id(user[1]),
                                                lot["buyoutPrice"]))
                         continue
                     except Exception:
@@ -66,7 +76,7 @@ async def check_item() -> None:
                         if await checking_conditions(user, lot):
                             try:
                                 await bot.send_message(user[0],
-                                                       notification_text.format(search_item_name_by_id(user[1]),
+                                                       notification_text.format(dbitem.search_item_name_by_id(user[1]),
                                                                                 lot_more_200["buyoutPrice"]))
                                 continue
                             except Exception:

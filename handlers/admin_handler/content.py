@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from create_bot import dp, bot
-from DataBase.sqlite import get_all_id_users
+from database.dbsql import get_all_id_users
 
 
 class CreateRupor(StatesGroup):

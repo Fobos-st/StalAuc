@@ -1,6 +1,6 @@
 from aiogram import types
 from create_bot import dp
-from DataBase.sqlite import get_count_user
+from database.dbsql import get_count_user
 
 
 @dp.message_handler(commands=['statistics'])

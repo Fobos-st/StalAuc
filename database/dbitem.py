@@ -1,12 +1,11 @@
 import json
-from main import item_db_ru
 
 
-def open_database() -> dict:
+def open_database_sc() -> dict:
     """
     :return: Выводит список предметов из БД
     """
-    with open('DataBase/ru/listing.json', "rb") as json_file:
+    with open('stalcraft-database/ru/listing.json', "rb") as json_file:
         item_db = json.load(json_file)
         return item_db
 
@@ -18,7 +17,7 @@ def search_item_id_by_name(my_item_name: str, user_lang) -> dict:
     :return: Предметы с их id
     """
     my_item_name = my_item_name.lower()
-    item_db = item_db_ru
+    item_db = open_database_sc()
     names_dict = {}
     for a in item_db:
         item_name_ru = a["name"]["lines"]["ru"]
@@ -36,7 +35,7 @@ def get_item_image(my_item_id: str) -> str:
     :param my_item_id: id предмета
     :return: место хранения изображения предмета
     """
-    item_db = item_db_ru
+    item_db = open_database_sc()
     pris = "ru"
     for a in item_db:
         item_id = a["data"].split("/")[-1][:-5]
@@ -62,7 +61,7 @@ def search_item_name_by_id(my_item_id: str) -> str:
     :param my_item_id: id предмета
     :return: название предмета
     """
-    item_db = item_db_ru
+    item_db = open_database_sc()
     for a in item_db:
         item_id = a["data"].split("/")[-1][:-5]
         if item_id == my_item_id:

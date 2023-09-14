@@ -1,5 +1,5 @@
-from DataBase.sqlite import get_request_user
-from DataBase.dbitem import search_item_name_by_id
+from database.dbsql import get_request_user
+from database.dbitem import search_item_name_by_id
 
 
 text_auc_lot = """
