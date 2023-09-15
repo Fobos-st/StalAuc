@@ -49,7 +49,6 @@ async def get_auction_average_price(item_id) -> str:
                         sum_items[int(lot['additional']['qlt'])] += lot['price']
                     except KeyError:
                         print(lot)
-                    print(sum_items, count_items)
                 else:
                     break
         result1 = '{0:,}'.format(int(sum_items[0] / count_items[0])).replace(',', '.') if sum_items[0] != 0 else 'Не было продаж'
@@ -94,7 +93,6 @@ async def get_name(message: types.Message, state: FSMContext):
         await message.reply('Нашёл несколько вариантов, выберете ниже', reply_markup=kb)
     elif len(id_item) == 1:
         text_msg = await get_auction_average_price(id_item)
-        print(text_msg)
         if text_msg == 0:
             await bot.send_message(message.from_user.id, await get_auction_average_price(id_item))
         else:
