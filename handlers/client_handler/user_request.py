@@ -77,8 +77,8 @@ async def reg_request_in_db_one(callback_query: types.CallbackQuery, state: FSMC
 # @dp.message_handler(content_types=["text"], state=MakeRequestUser.price)
 async def reg_request_in_db_two(message: types.Message, state: FSMContext):
     try:
-        text = int(message.text)
-        await state.update_data(price=text)
+        text_user_msg = int(message.text)
+        await state.update_data(price=text_user_msg)
         data = await state.get_data()
         if is_it_artifact(data["item_id"]):
             await message.answer('Отлично, теперь надо выбрать качество артефакта и его потанциал при необходимости')
@@ -88,9 +88,11 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
                 'высокой редкости так и выбранной изначально', reply_markup=quality_inline_keyboard)
         else:
             update_sqlite_table(message.from_user.id, data['item_id'], data['price'])
-            await message.answer(
-                'Отлично, я запомнил твой запрос, постараюсь уведомить тебя об его наличие как можно скорее',
-                reply_markup=main_kb)
+            await message.answer(f"""
+Предмет внесён в список
+Предмет: {data['item_name']}
+Цена: от {data['price']} и меньше
+""",       reply_markup=main_kb)
             await state.finish()
     except ValueError:
         await message.answer('Неправильная форма записи')
@@ -109,12 +111,13 @@ async def reg_request_in_db_three(callback_query: types.CallbackQuery, state: FS
 async def reg_request_in_db_four(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(additional=callback_query.data)
     data = await state.get_data()
+    additional = 'Любая' if data['additional'] == 'All' else f"от {data['additional']} и более"
     await bot.send_message(callback_query.from_user.id, f"""
 Предмет внесён в список
 Предмет: {data['item_name']}
-Цена: {data['price']}
-Качество: {data['quality']}
-Заточка: {data['additional']}
+Цена: от {data['price']} и меньше
+Качество: от '{text.QUALITY[int(data['quality'])]}' и более
+Заточка: {additional}
 """)
     update_sqlite_table(callback_query.from_user.id, data['item_id'], data['price'], data['quality'],
                         data['additional'])

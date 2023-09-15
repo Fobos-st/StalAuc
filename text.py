@@ -38,6 +38,7 @@ def current_request(user_id: int) -> str:
 
 
 average_price_artifact = """
+Средняя цена за последние 7 дней
 Обычный: {}
 Необычный: {}
 Особый: {}
