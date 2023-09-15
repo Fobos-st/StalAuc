@@ -35,3 +35,13 @@ def current_request(user_id: int) -> str:
     else:
         text += f"Уровень заточки: {data[4]}"
     return text
+
+
+average_price_artifact = """
+Обычный: {}
+Необычный: {}
+Особый: {}
+Редкий: {}
+Исключительный: {}
+Легендарный: {}
+"""

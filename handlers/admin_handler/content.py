@@ -4,6 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import bot
+from ..keyboard import main_kb
 from database.dbsql import get_all_id_users
 
 
@@ -25,12 +26,12 @@ async def send_message(message: types.Message, state: FSMContext):
     blocked_user = 0
     for user in data:
         try:
-            await bot.send_message(user[0], message.text)
+            await bot.send_message(user[0], message.text, reply_markup=main_kb)
         except Exception:
             blocked_user += 1
     await message.answer(f"Пользователи получили сообщение, из них не получили {blocked_user}")
 
 
 def register_admin_handler_content(dp: Dispatcher):
-    dp.register_message_handler(commands=['rupor'])
+    dp.register_message_handler(send_message_all_users, commands=['rupor'])
     dp.register_message_handler(send_message, state=CreateRupor.text)
