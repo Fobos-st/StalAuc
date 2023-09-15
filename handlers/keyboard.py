@@ -22,11 +22,26 @@ quality_inline_button = [
 
 quality_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
 
-additional_inline_keyboard = types.InlineKeyboardMarkup()
-for i in range(1, 16):
-    additional_inline_keyboard.add(types.InlineKeyboardButton(text=f'{i}', callback_data=f'{i}'))
-additional_inline_keyboard.add(types.InlineKeyboardButton(text='Без разницы', callback_data='All'))
+additional_inline_button = [
+    [types.InlineKeyboardButton(text=f'{1}', callback_data=f'{1}'),
+     types.InlineKeyboardButton(text=f'{2}', callback_data=f'{2}'),
+     types.InlineKeyboardButton(text=f'{3}', callback_data=f'{3}')],
+    [types.InlineKeyboardButton(text=f'{4}', callback_data=f'{4}'),
+     types.InlineKeyboardButton(text=f'{5}', callback_data=f'{5}'),
+     types.InlineKeyboardButton(text=f'{6}', callback_data=f'{6}')],
+    [types.InlineKeyboardButton(text=f'{7}', callback_data=f'{7}'),
+     types.InlineKeyboardButton(text=f'{8}', callback_data=f'{8}'),
+     types.InlineKeyboardButton(text=f'{9}', callback_data=f'{9}')],
+    [types.InlineKeyboardButton(text=f'{10}', callback_data=f'{10}'),
+     types.InlineKeyboardButton(text=f'{11}', callback_data=f'{11}'),
+     types.InlineKeyboardButton(text=f'{12}', callback_data=f'{12}')],
+    [types.InlineKeyboardButton(text=f'{13}', callback_data=f'{13}'),
+     types.InlineKeyboardButton(text=f'{14}', callback_data=f'{14}'),
+     types.InlineKeyboardButton(text=f'{15}', callback_data=f'{15}')]
 
+]
+additional_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=additional_inline_button)
+additional_inline_keyboard.add(types.InlineKeyboardButton(text='Без разницы', callback_data='All'))
 
 cancel_button = [
     [types.InlineKeyboardButton(text='Отмена❌', callback_data='Отмена')]
