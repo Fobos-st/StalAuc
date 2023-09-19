@@ -6,7 +6,7 @@ import API_request
 import database.dbitem
 import handlers.keyboard
 import text
-from create_bot import bot
+from create_bot import bot, dp
 from ..keyboard import cancel_inline_keyboard, get_control_menu
 
 
@@ -50,7 +50,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
 
 
 # @dp.callback_query_handler(state=WaitItemName.text)
-async def cmd_request(callback_query: types.CallbackQuery, state: FSMContext):
+async def cmd_req(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
         await bot.send_message(callback_query.from_user.id, ":-(")
@@ -108,4 +108,5 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
 def register_client_handlers_get_auc_lot(dp: Dispatcher):
     dp.register_message_handler(cmd_item_check_check_item, content_types=['text'], text="Проверка цены")
     dp.register_message_handler(get_item_name, content_types=['text'], state=WaitItemName.text)
-    dp.register_callback_query_handler(cmd_request, state=WaitItemName.text)
+    dp.register_callback_query_handler(cmd_req, state=WaitItemName.text)
+    dp.register_callback_query_handler(changing_the_list_of_lots)
