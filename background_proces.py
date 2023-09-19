@@ -59,29 +59,37 @@ async def check_item() -> None:
                                                  head=HEADERS,
                                                  params=PARAMS_CHECK)
             result = json.loads(result)
-            lots = result["lots"]
-            for lot in lots:
-                if await checking_conditions(user, lot):
+            try:
+                lots = result["lots"]
+                for lot in lots:
+                    if await checking_conditions(user, lot):
+                        try:
+                            await bot.send_message(user[0],
+                                                   notification_text.format(dbitem.search_item_name_by_id(user[1]),
+                                                                            lot["buyoutPrice"]))
+                            continue
+                        except Exception:
+                            pass
                     try:
-                        await bot.send_message(user[0],
-                                               notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                               lot["buyoutPrice"]))
-                        continue
+                        if int(result['total']) > 200:  # KeyError Ошибка с total
+                            result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
+                                                                 head=HEADERS,
+                                                                 params=PARAMS_CHECK_MORE_200_LOTS)
+                            result = json.loads(result)
+                            for lot_more_200 in lots:
+                                if await checking_conditions(user, lot):
+                                    try:
+                                        await bot.send_message(user[0],
+                                                               notification_text.format(
+                                                                   dbitem.search_item_name_by_id(user[1]),
+                                                                   lot_more_200["buyoutPrice"]))
+                                        continue
+                                    except Exception:
+                                        pass
                     except Exception:
-                        pass
-                if int(result['total']) > 200:
-                    result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
-                                                         head=HEADERS,
-                                                         params=PARAMS_CHECK_MORE_200_LOTS)
-                    result = json.loads(result)
-                    for lot_more_200 in lots:
-                        if await checking_conditions(user, lot):
-                            try:
-                                await bot.send_message(user[0],
-                                                       notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                                                                lot_more_200["buyoutPrice"]))
-                                continue
-                            except Exception:
-                                pass
+                        ...
+            except KeyError as error:
+                await bot.send_message(1254191582, error)
+
         print("Конец проверки")
         await asyncio.sleep(150)

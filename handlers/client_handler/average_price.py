@@ -29,13 +29,17 @@ async def check_time(time: str) -> bool:
 
 
 async def get_auction_average_price(item_id) -> str:
+    try:
+        item_id = list(item_id.values())[0]
+    except AttributeError:
+        ...
     max_iteration = 1
     if database.dbitem.is_it_artifact(item_id):
         sum_items = [0, 0, 0, 0, 0, 0]
         count_items = [0, 0, 0, 0, 0, 0]
         for a in range(max_iteration):
             try:
-                url = f"https://eapi.stalcraft.net/ru/auction/{list(item_id.values())[0]}/history"
+                url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             except AttributeError:
                 url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             params = {"limit": "100", "additional": "true", "offset": f"{a * 100}"}
@@ -63,7 +67,7 @@ async def get_auction_average_price(item_id) -> str:
         count_items = 0
         for a in range(max_iteration):
             try:
-                url = f"https://eapi.stalcraft.net/ru/auction/{list(item_id.values())[0]}/history"
+                url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             except AttributeError:
                 url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             params = {"limit": "100", "additional": "true", "offset": f"{a * 100}"}
@@ -93,10 +97,7 @@ async def get_name(message: types.Message, state: FSMContext):
         await message.reply('Нашёл несколько вариантов, выберете ниже', reply_markup=kb)
     elif len(id_item) == 1:
         text_msg = await get_auction_average_price(id_item)
-        if text_msg == 0:
-            await bot.send_message(message.from_user.id, await get_auction_average_price(id_item))
-        else:
-            await bot.send_message(message.from_user.id, 'За последние 7дней небыло продаж')
+        await bot.send_message(message.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
         await state.finish()
     else:
         await message.answer('Такого предмета нету в нашем списке(')
@@ -111,10 +112,7 @@ async def selection_item(callback_query: types.CallbackQuery, state: FSMContext)
         await state.finish()
         await callback_query.message.delete()
         text_msg = await get_auction_average_price(callback_query.data)
-        if text_msg == 0:
-            await bot.send_message(callback_query.from_user.id, 'За последние 7дней небыло продаж')
-        else:
-            await bot.send_message(callback_query.from_user.id, text_msg)
+        await bot.send_message(callback_query.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
 
 
 def register_client_handlers_average_price(dp: Dispatcher):
