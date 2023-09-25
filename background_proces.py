@@ -89,6 +89,7 @@ async def check_item() -> None:
                     except Exception:
                         ...
             except KeyError as error:
+                error += user
                 await bot.send_message(1254191582, error)
 
         print("Конец проверки")
