@@ -127,8 +127,6 @@ async def parse_json_file(days, item_id):
         else:
             close_prices.append(data_item[counter - 1]["price"] / data_item[counter - 1]["amount"])
             return dates_sold[::-1], open_prices[::-1], high_prices[::-1], low_prices[::-1], close_prices[::-1], value[::-1]
-
-
     close_prices.append(data_item[counter - 1]["price"] / data_item[counter - 1]["amount"])
     return dates_sold[::-1], open_prices[::-1], high_prices[::-1], low_prices[::-1], close_prices[::-1], value[::-1]
 

@@ -10,7 +10,7 @@ from config import BOT_TOKEN
 
 async def on_bot_start_up(dispatcher: Dispatcher) -> None:
     """List of actions which should be done before bot start"""
-    asyncio.create_task(background_proces.check_item())  # creates background task
+    asyncio.create_task(background_proces.check_item_rework())  # creates background task
 
 
 def create_bot_factory() -> None:
