@@ -251,6 +251,7 @@ async def create_table_excel(days, user_id, item_id):
 # @dp.message_handler(text='История цен')
 async def cmd_create_chart(message: types.Message):
     if message.text == "История цен":
+        await message.answer("Мини гайд по графику https://youtu.be/UCaeJpC_s4A?si=6BftfsApqzudVzwu, так-же стоит учитывать что создание графика достаточно долгое дело")
         await CreateChart.item_id.set()
         await message.answer(text.input_item_name_messeage,
                              reply_markup=cancel_inline_keyboard)
