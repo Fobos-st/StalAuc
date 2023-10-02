@@ -27,7 +27,6 @@ async def cmd_item_check_check_item(message: types.Message):
 # @dp.message_handler(content_types=["text"], state=WaitItemName.text)
 async def get_item_name(message: types.Message, state: FSMContext):
     id_item = database.dbitem.search_item_id_by_name(message.text, "RU")
-    (message.from_user.first_name)
     if len(id_item) > 1:
         kb = await handlers.keyboard.get_keyboard_item(id_item)
         return await message.reply('Нашёл несколько вариантов, выберете ниже', reply_markup=kb)
