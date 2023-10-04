@@ -3,7 +3,7 @@ import json
 import math
 
 from aiogram import Bot
-from aiogram.utils.exceptions import ChatNotFound
+from aiogram.utils.exceptions import ChatNotFound, UserDeactivated
 
 from API_request import make_http_get_request
 from config import BOT_TOKEN
@@ -151,6 +151,8 @@ async def check_item_rework() -> None:
                         continue
                     except ChatNotFound:
                         pass
+                    except UserDeactivated:
+                        pass
 
             if int(result['total']) > 200:  # KeyError Ошибка с total
                 iteration = 1
@@ -167,7 +169,9 @@ async def check_item_rework() -> None:
                                 continue
                             except ChatNotFound:
                                 pass
+                            except UserDeactivated:
+                                pass
                     iteration += 1
 
         print("Конец проверки")
-        await asyncio.sleep(150)
+        await asyncio.sleep(60)
