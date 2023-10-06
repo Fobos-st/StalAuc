@@ -12,6 +12,11 @@ class CreateRupor(StatesGroup):
     text = State()
 
 
+class CreateRequestUser(StatesGroup):
+    text = State()
+    id_user = State()
+
+
 # @dp.message_handler(commands=['rupor'])
 async def send_message_all_users(message: types.Message):
     if message.from_user.id == 1254191582:
@@ -32,6 +37,36 @@ async def send_message(message: types.Message, state: FSMContext):
     await message.answer(f"Пользователи получили сообщение, из них не получили {blocked_user}")
 
 
+#  @dp.message_handler(commands=['answer'])
+async def send_answer_user(message: types.Message):
+    if message.from_user.id == 1254191582:
+        await CreateRequestUser.text.set()
+        await message.answer("Текст")
+
+
+# @dp.message_handler(state=CreateRequestUser.text)
+async def get_answer_text(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['text'] = message.text
+    await CreateRequestUser.next()
+    await message.answer("id")
+
+
+# @dp.message_handler(state=CreateRequestUser.id_user)
+async def get_answer_id(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    try:
+        await bot.send_message(int(message.text), f"Ответ от разаботчика \n{data['text']}")
+        await message.answer("Пользователь получил ответ")
+        await state.finish()
+    except Exception:
+        await message.answer("Пользователь не получил ответ")
+        await state.finish()
+
+
 def register_admin_handler_content(dp: Dispatcher):
     dp.register_message_handler(send_message_all_users, commands=['rupor'])
     dp.register_message_handler(send_message, state=CreateRupor.text)
+    dp.register_message_handler(send_answer_user, commands=['answer'])
+    dp.register_message_handler(get_answer_text, state=CreateRequestUser.text)
+    dp.register_message_handler(get_answer_id, state=CreateRequestUser.id_user)

@@ -19,7 +19,7 @@ async def cmd_ticket(message: types.Message):
 async def send_ticket_admin(message: types.Message, state: FSMContext):
     await message.answer("Отлично, разработчик обязательно получит ваше столь важное сообщение")
     await state.finish()
-    await bot.send_message(1254191582, f"""Собщение от {message.from_user.first_name},
+    await bot.send_message(1254191582, f"""Собщение от {message.from_user.first_name} {message.from_user.id},
 {message.text}
 """)
 
