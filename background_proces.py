@@ -3,7 +3,7 @@ import json
 import math
 
 from aiogram import Bot
-from aiogram.utils.exceptions import ChatNotFound, UserDeactivated
+from aiogram.utils.exceptions import ChatNotFound, UserDeactivated, BotBlocked
 
 from API_request import make_http_get_request
 from config import BOT_TOKEN
@@ -138,40 +138,47 @@ async def check_item_rework() -> None:
         users = await print_all_users()
 
         for user in users:
-            if user[1] == 'None':
-                continue
-            result = await get_lots_item(user[1], user)
-            lots = result['lots']
-            for lot in lots:
-                if await checking_conditions(user, lot):
-                    try:
-                        await bot.send_message(user[0],
-                                               notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                                                        lot["buyoutPrice"]))
-                        continue
-                    except ChatNotFound:
-                        pass
-                    except UserDeactivated:
-                        pass
+            try:
+                if user[1] == 'None':
+                    continue
+                result = await get_lots_item(user[1], user)
+                lots = result['lots']
+                for lot in lots:
+                    if await checking_conditions(user, lot):
+                        try:
+                            await bot.send_message(user[0],
+                                                   notification_text.format(dbitem.search_item_name_by_id(user[1]),
+                                                                            lot["buyoutPrice"]))
+                            continue
+                        except ChatNotFound:
+                            pass
+                        except UserDeactivated:
+                            pass
+                        except BotBlocked:
+                            pass
 
-            if int(result['total']) > 200:  # KeyError Ошибка с total
-                iteration = 1
-                count_iteration = math.ceil(int(result['total']) / 200)
-                while iteration <= count_iteration:
-                    result = await get_lots_item_more_200(user[1], user, iteration)
-                    lots = result['lots']
-                    for lot in lots:
-                        if await checking_conditions(user, lot):
-                            try:
-                                await bot.send_message(user[0],
-                                                       notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                                                                lot["buyoutPrice"]))
-                                continue
-                            except ChatNotFound:
-                                pass
-                            except UserDeactivated:
-                                pass
-                    iteration += 1
+                if int(result['total']) > 200:  # KeyError Ошибка с total
+                    iteration = 1
+                    count_iteration = math.ceil(int(result['total']) / 200)
+                    while iteration <= count_iteration:
+                        result = await get_lots_item_more_200(user[1], user, iteration)
+                        lots = result['lots']
+                        for lot in lots:
+                            if await checking_conditions(user, lot):
+                                try:
+                                    await bot.send_message(user[0],
+                                                           notification_text.format(dbitem.search_item_name_by_id(user[1]),
+                                                                                    lot["buyoutPrice"]))
+                                    continue
+                                except ChatNotFound:
+                                    pass
+                                except UserDeactivated:
+                                    pass
+                                except BotBlocked:
+                                    pass
+                        iteration += 1
+            except Exception as ex:
+                await bot.send_message(1254191582, ex)
 
         print("Конец проверки")
         await asyncio.sleep(60)
