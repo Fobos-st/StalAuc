@@ -2,6 +2,8 @@ import json
 
 import aiohttp
 
+import database.dbitem
+import text
 from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, first_querystring
 from text import text_auc_lot
 
@@ -25,6 +27,7 @@ async def get_auc_item(data) -> str:
     :return: Список выбранных предметов с аукциона
     """
     page = int(data[1])
+    item_id = data[2]
     change = data[0]
     if change == 'remove_page':
         page -= 2
@@ -35,22 +38,32 @@ async def get_auc_item(data) -> str:
                        "order": f"{data[3]}",
                        "additional": "true"}
 
-    data = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(data[2]), HEADERS, params=querystring_auc)
+    data = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(item_id), HEADERS, params=querystring_auc)
     data = json.loads(data)
     lots = data["lots"]
-    text = ''
-    for lot in lots:
-        text += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
-                                    lot["endTime"][:10], lot["endTime"][11:19])
+    text_msg = ''
 
-    if not text:
+    if database.dbitem.is_it_artifact(item_id):
+        for lot in lots:
+            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
+                                            lot["endTime"][:10], lot["endTime"][11:19])
+            try:
+                text_msg += f"Качество артефакта: {text.QUALITY[lot['additional']['qlt']]} \n"
+            except Exception:
+                pass
+    else:
+        for lot in lots:
+            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
+                                            lot["endTime"][:10], lot["endTime"][11:19])
+
+    if not text_msg:
         return False, 'Даного предмета нету на аукционе('
 
     if change == "add_page":
         page += 1
-        return len(lots) < 10 or (int(data['total']) // 10) == page, text
+        return len(lots) < 10 or (int(data['total']) // 10) == page, text_msg
     else:
-        return False, text
+        return False, text_msg
 
 
 async def get_auc_item_first(id_item: str) -> str:
@@ -63,13 +76,20 @@ async def get_auc_item_first(id_item: str) -> str:
     text_msg = ''
     data = json.loads(data)
     lots = data["lots"] # KeyError: 'lots'
-    for lot in lots:
-        text_msg += f"""
-Количество: {lot["amount"]}
-Ставка: {lot["startPrice"]}
-Цена выкупа: {lot["buyoutPrice"]}
-Время окончание лота: {lot["endTime"][:10]} {lot["endTime"][11:19]}
-"""
+
+    if database.dbitem.is_it_artifact(id_item):
+        for lot in lots:
+            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
+                                            lot["endTime"][:10], lot["endTime"][11:19])
+            try:
+                text_msg += f"Качество артефакта: {text.QUALITY[lot['additional']['qlt']]} \n"
+            except Exception:
+                pass
+    else:
+        for lot in lots:
+            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
+                                            lot["endTime"][:10], lot["endTime"][11:19])
+
     if text_msg:
         pass
     else:
