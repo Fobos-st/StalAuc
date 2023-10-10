@@ -45,7 +45,8 @@ async def get_auc_item(data) -> str:
 
     if database.dbitem.is_it_artifact(item_id):
         for lot in lots:
-            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
+            text_msg += text_auc_lot.format(lot["amount"], '{0:,}'.format(int(lot["startPrice"])).replace(',', '.'),
+                                            '{0:,}'.format(int(lot["buyoutPrice"])).replace(',', '.'),
                                             lot["endTime"][:10], lot["endTime"][11:19])
             try:
                 text_msg += f"Качество артефакта: {text.QUALITY[lot['additional']['qlt']]} \n"
@@ -79,7 +80,8 @@ async def get_auc_item_first(id_item: str) -> str:
 
     if database.dbitem.is_it_artifact(id_item):
         for lot in lots:
-            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
+            text_msg += text_auc_lot.format(lot["amount"], '{0:,}'.format(int(lot["startPrice"])).replace(',', '.'),
+                                            '{0:,}'.format(int(lot["buyoutPrice"])).replace(',', '.'),
                                             lot["endTime"][:10], lot["endTime"][11:19])
             try:
                 text_msg += f"Качество артефакта: {text.QUALITY[lot['additional']['qlt']]} \n"
