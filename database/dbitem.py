@@ -40,7 +40,7 @@ def get_item_image(my_item_id: str) -> str:
     for a in item_db:
         item_id = a["data"].split("/")[-1][:-5]
         if item_id == my_item_id:
-            return "database/dbitem/" + pris + a["icon"]
+            return "database/stalcraft-database/" + pris + a["icon"]
 
 
 def is_it_artifact(my_item_id: str) -> bool:

@@ -1,11 +1,7 @@
 import json
-
 import aiohttp
-
-import database.dbitem
-import text
 from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, first_querystring
-from text import text_auc_lot
+
 
 
 async def make_http_get_request(url: str, head: str, params: str):
@@ -32,39 +28,21 @@ async def get_auc_item(data) -> str:
     if change == 'remove_page':
         page -= 2
 
-    querystring_auc = {"limit": "10",
+    querystring_auc = {"limit": "5",
                        "sort": "buyout_price",
-                       "offset": f"{str(10 * page)}",
+                       "offset": f"{str(5 * page)}",
                        "order": f"{data[3]}",
                        "additional": "true"}
 
     data = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(item_id), HEADERS, params=querystring_auc)
     data = json.loads(data)
     lots = data["lots"]
-    text_msg = ''
-
-    if database.dbitem.is_it_artifact(item_id):
-        for lot in lots:
-            text_msg += text_auc_lot.format(lot["amount"], '{0:,}'.format(int(lot["startPrice"])).replace(',', '.'),
-                                            '{0:,}'.format(int(lot["buyoutPrice"])).replace(',', '.'),
-                                            lot["endTime"][:10], lot["endTime"][11:19])
-            try:
-                text_msg += f"Качество артефакта: {text.QUALITY[lot['additional']['qlt']]} \n"
-            except Exception:
-                pass
-    else:
-        for lot in lots:
-            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
-                                            lot["endTime"][:10], lot["endTime"][11:19])
-
-    if not text_msg:
-        return False, 'Даного предмета нету на аукционе('
 
     if change == "add_page":
         page += 1
-        return len(lots) < 10 or (int(data['total']) // 10) == page, text_msg
+        return data['total'] <= page * 5, lots
     else:
-        return False, text_msg
+        return False, lots
 
 
 async def get_auc_item_first(id_item: str) -> str:
@@ -74,26 +52,9 @@ async def get_auc_item_first(id_item: str) -> str:
     """
     url = f"https://eapi.stalcraft.net/ru/auction/{id_item}/lots"
     data = await make_http_get_request(url, HEADERS, params=first_querystring)
-    text_msg = ''
     data = json.loads(data)
-    lots = data["lots"] # KeyError: 'lots'
-
-    if database.dbitem.is_it_artifact(id_item):
-        for lot in lots:
-            text_msg += text_auc_lot.format(lot["amount"], '{0:,}'.format(int(lot["startPrice"])).replace(',', '.'),
-                                            '{0:,}'.format(int(lot["buyoutPrice"])).replace(',', '.'),
-                                            lot["endTime"][:10], lot["endTime"][11:19])
-            try:
-                text_msg += f"Качество артефакта: {text.QUALITY[lot['additional']['qlt']]} \n"
-            except Exception:
-                pass
-    else:
-        for lot in lots:
-            text_msg += text_auc_lot.format(lot["amount"], lot["startPrice"], lot["buyoutPrice"],
-                                            lot["endTime"][:10], lot["endTime"][11:19])
-
-    if text_msg:
-        pass
-    else:
-        return 'Даного предмета нету на аукционе('
-    return text_msg
+    try:
+        lots = data["lots"]
+        return lots
+    except Exception:
+        await get_auc_item_first(id_item)
