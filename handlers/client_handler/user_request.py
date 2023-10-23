@@ -52,7 +52,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
         await state.update_data(item_id=callback_data)
         await MakeRequestUser.next()
     else:
-        await message.answer('Такого предмета нету в нашем списке(')
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
         await state.finish()
 
 
@@ -90,7 +90,7 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
             update_sqlite_table(message.from_user.id, data['item_id'], data['price'])
             await message.answer(f"""
 Предмет внесён в список
-Предмет: {data['item_name']}
+Предмет: {search_item_name_by_id(data['item_id'])}
 Цена: от {data['price']} и меньше
 """,       reply_markup=main_kb)
             await state.finish()
@@ -114,7 +114,7 @@ async def reg_request_in_db_four(callback_query: types.CallbackQuery, state: FSM
     additional = 'Любая' if data['additional'] == 'All' else f"от {data['additional']} и более"
     await bot.send_message(callback_query.from_user.id, f"""
 Предмет внесён в список
-Предмет: {data['item_name']}
+Предмет: {search_item_name_by_id(data['item_id'])}
 Цена: от {data['price']} и меньше
 Качество: от '{text.QUALITY[int(data['quality'])]}' и более
 Заточка: {additional}

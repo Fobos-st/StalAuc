@@ -263,7 +263,7 @@ async def cmd_create_chart(message: types.Message):
     if message.text == "История цен":
         await message.answer("Мини гайд по графику https://youtu.be/UCaeJpC_s4A?si=6BftfsApqzudVzwu, так-же стоит учитывать что создание графика достаточно долгое дело")
         await CreateChart.item_id.set()
-        await message.answer('Советую не создавать график с историей цен артефакта')
+        await message.answer('Советую не создавать график с историей цен артефакта(Так как нету сортировки)')
         await message.answer(text.input_item_name_messeage,
                              reply_markup=cancel_inline_keyboard)
     else:
@@ -284,7 +284,7 @@ async def get_item_id_one(message: types.Message, state: FSMContext):
         await CreateChart.next()
         await message.answer("За сколько дней вывести информацию? (число от 1 до 31)")
     else:
-        await message.answer('Такого предмета нету в нашем списке(')
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
         await state.finish()
 
 

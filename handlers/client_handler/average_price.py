@@ -100,7 +100,7 @@ async def get_name(message: types.Message, state: FSMContext):
         await bot.send_message(message.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
         await state.finish()
     else:
-        await message.answer('Такого предмета нету в нашем списке(')
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
         await state.finish()
 
 
