@@ -55,7 +55,7 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str) -> str
     iteration = 0
     item_name = database.dbitem.search_item_name_by_id(id_item)
     for lot in lots:
-        im1.paste(im2, (45, 95 + 99 * iteration))
+        im1.paste(im2, (45, 95 + 99 * iteration), mask=im2)
 
         quality_color = {
             0: "EEEEEE",
@@ -115,24 +115,63 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str) -> str
             # Добавляем шрифт к изображению
             font=font,
             fill='#DBDBDB')
-        draw_text.text(
-            (750, 100 + 99 * iteration),
-            ' ',
-            # Добавляем шрифт к изображению
-            font=font1,
-            fill='#DBDBDB')
-        draw_text.text(
-            (750, 125 + 99 * iteration),
-            'В разработке',
-            # Добавляем шрифт к изображению
-            font=font1,
-            fill='#DBDBDB')
-        draw_text.text(
-            (750, 150 + 99 * iteration),
-            ' ',
-            # Добавляем шрифт к изображению
-            font=font1,
-            fill='#DBDBDB')
+        if "stats_random" in lot['additional'] and "bonus_properties" in lot['additional']:
+            for bonus in lot["additional"]["bonus_properties"]:
+                if bonus not in text.additional_features:
+                    await bot.send_message(1254191582, bonus)
+            if len(lot['additional']["bonus_properties"]) == 3:
+                draw_text.text(
+                    (750, 100 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (750, 125 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (750, 150 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+            elif len(lot['additional']["bonus_properties"]) == 2:
+                draw_text.text(
+                    (750, 110 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (750, 140 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+            else:
+                draw_text.text(
+                    (750, 125 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+        elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional']:
+            draw_text.text(
+                (750, 125 + 99 * iteration),
+                'Не изучен',
+                # Добавляем шрифт к изображению
+                font=font1,
+                fill='#DBDBDB')
+        else:
+            draw_text.text(
+                (750, 125 + 99 * iteration),
+                'Отсутствуют',
+                # Добавляем шрифт к изображению
+                font=font1,
+                fill='#DBDBDB')
 
         iteration += 1
 
@@ -177,6 +216,8 @@ async def get_item_name(message: types.Message, state: FSMContext):
                                      reply_markup=ikb)
             os.remove(filename)
         else:
+            await bot.send_sticker(message.from_user.id,
+                                   "CAACAgIAAxkBAAEKk1NlNK4RlDHOMdrArzsw3VlfNykj5QACQgEAAladvQpuq-gijfR0hDAE")
             await message.answer('Предмета нету на аукционе в данный момент')
         await state.finish()
     else:
@@ -211,6 +252,8 @@ async def cmd_req(callback_query: types.CallbackQuery, state: FSMContext):
             os.remove(filename)
         else:
             print(len(lots))
+            await bot.send_sticker(callback_query.from_user.id,
+                                   "CAACAgIAAxkBAAEKk1NlNK4RlDHOMdrArzsw3VlfNykj5QACQgEAAladvQpuq-gijfR0hDAE")
             await bot.send_message(callback_query.from_user.id, 'Предмета нету на аукционе в данный момент')
 
 
