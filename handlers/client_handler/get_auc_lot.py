@@ -229,7 +229,8 @@ async def get_item_name(message: types.Message, state: FSMContext):
 async def cmd_req(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
-        await bot.send_message(callback_query.from_user.id, ":-(")
+        await callback_query.message.delete()
+        await bot.send_message(callback_query.from_user.id, "(")
     else:
         await state.finish()
         await callback_query.message.delete()

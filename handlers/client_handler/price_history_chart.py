@@ -24,6 +24,7 @@ from API_request import make_http_get_request
 from config import URL_GET_HISTORY_AUC_LOTS, HEADERS_1
 from create_bot import bot
 from ..keyboard import cancel_inline_keyboard
+from aiogram.types import ChatActions
 
 
 class CreateChart(StatesGroup):
@@ -292,7 +293,8 @@ async def get_item_id_one(message: types.Message, state: FSMContext):
 async def get_item_id_two(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
-        await bot.send_message(callback_query.from_user.id, ":-(")
+        await callback_query.message.delete()
+        await bot.send_message(callback_query.from_user.id, "(")
     else:
         await CreateChart.next()
         await callback_query.message.delete()
@@ -349,9 +351,11 @@ async def get_count_timing(message: types.Message, state: FSMContext):
             os.remove(filename)
     except ValueError:
         data = await state.get_data()
+        await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
         msg = await message.answer('Собираю информцию')
         await asyncio.sleep(int(data['days']) / 10)
         await msg.delete()
+        await bot.send_chat_action(message.from_user.id, ChatActions.UPLOAD_DOCUMENT)
         await message.answer('Рисую график')
         await asyncio.sleep(int(data['days']) / 10)
         filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], 1440)

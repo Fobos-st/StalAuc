@@ -60,7 +60,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
 async def reg_request_in_db_one(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
-        await bot.send_message(callback_query.from_user.id, ":-(")
+        await bot.send_message(callback_query.from_user.id, "(")
         await callback_query.message.delete()
     else:
         await callback_query.message.delete()

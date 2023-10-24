@@ -5,6 +5,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
 import API_request
+from aiogram.types import ChatActions
 import database.dbitem
 import handlers.keyboard
 from text import average_price_artifact, input_item_name_messeage
@@ -33,7 +34,7 @@ async def get_auction_average_price(item_id) -> str:
         item_id = list(item_id.values())[0]
     except AttributeError:
         ...
-    max_iteration = 1
+    max_iteration = 3
     if database.dbitem.is_it_artifact(item_id):
         sum_items = [0, 0, 0, 0, 0, 0]
         count_items = [0, 0, 0, 0, 0, 0]
@@ -96,8 +97,11 @@ async def get_name(message: types.Message, state: FSMContext):
         kb = await handlers.keyboard.get_keyboard_item(id_item)
         await message.reply('Нашёл несколько вариантов, выберете ниже', reply_markup=kb)
     elif len(id_item) == 1:
+        msg1 = await message.answer('Собираю информацию')
+        await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
         text_msg = await get_auction_average_price(id_item)
         await bot.send_message(message.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
+        await msg1.delete()
         await state.finish()
     else:
         await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
@@ -107,7 +111,8 @@ async def get_name(message: types.Message, state: FSMContext):
 async def selection_item(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
-        await bot.send_message(callback_query.from_user.id, ":-(")
+        await callback_query.message.delete()
+        await bot.send_message(callback_query.from_user.id, "(")
     else:
         await state.finish()
         await callback_query.message.delete()
