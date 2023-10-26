@@ -81,7 +81,7 @@ async def get_auction_average_price(item_id) -> str:
                     sum_items += lot['price']
                 else:
                     break
-            if len(count_items) == 0:
+            if count_items == 0:
                 return "Небыло продаж за последние 7 дней"
             return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items)).replace(',', '.')}"
 

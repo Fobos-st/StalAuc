@@ -1,6 +1,7 @@
 import asyncio
 import json
 import math
+import sys
 
 from aiogram import Bot
 from aiogram.utils.exceptions import ChatNotFound, UserDeactivated, BotBlocked
@@ -72,61 +73,8 @@ async def checking_conditions(user: tuple, lot: dict) -> bool:
     return param1 and param2 and param3
 
 
-async def check_item() -> None:
-    """
-    Проверяет каждые 2,5 минуты аукцион по запросам пользователей
-    В случае наличия нужного предмета отправляет сообщение о его наличие
-    Работает в качестве фонового процесса
-    :return:
-    """
-    while True:
-        print("начало проверки")
-        users = await print_all_users()
-        for user in users:
-            if user[1] == 'None':
-                continue
-            result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
-                                                 head=HEADERS,
-                                                 params=PARAMS_CHECK)
-            result = json.loads(result)
-            try:
-                lots = result["lots"]
-                for lot in lots:
-                    if await checking_conditions(user, lot):
-                        try:
-                            await bot.send_message(user[0],
-                                                   notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                                                            lot["buyoutPrice"]))
-                            continue
-                        except Exception:
-                            pass
-                    try:
-                        if int(result['total']) > 200:  # KeyError Ошибка с total
-                            result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
-                                                                 head=HEADERS,
-                                                                 params=PARAMS_CHECK_MORE_200_LOTS)
-                            result = json.loads(result)
-                            for lot_more_200 in lots:
-                                if await checking_conditions(user, lot):
-                                    try:
-                                        await bot.send_message(user[0],
-                                                               notification_text.format(
-                                                                   dbitem.search_item_name_by_id(user[1]),
-                                                                   lot_more_200["buyoutPrice"]))
-                                        continue
-                                    except Exception:
-                                        pass
-                    except Exception:
-                        ...
-            except KeyError as error:
-                text_msg = str(error) + '\n' + str(user[0]) + '\n' + str(user[1]) + '\n' + str(user[2]) + '\n' + str(user[3]) + '\n' + str(user[4])
-                await bot.send_message(1254191582, text_msg)
-
-        print("Конец проверки")
-        await asyncio.sleep(150)
-
-
 async def check_item_rework() -> None:
+    spam_message = []
     """
     Проверяет каждые 2,5 минуты аукцион по запросам пользователей
     В случае наличия нужного предмета отправляет сообщение о его наличие
@@ -144,11 +92,12 @@ async def check_item_rework() -> None:
                 result = await get_lots_item(user[1], user)
                 lots = result['lots']
                 for lot in lots:
-                    if await checking_conditions(user, lot):
+                    if await checking_conditions(user, lot) and (user[0], lot["startTime"], lot["itemId"]) not in spam_message:
                         try:
                             await bot.send_message(user[0],
                                                    notification_text.format(dbitem.search_item_name_by_id(user[1]),
                                                                             lot["buyoutPrice"]))
+                            spam_message.append((user[0], lot["startTime"], lot["itemId"]))
                             continue
                         except ChatNotFound:
                             pass
@@ -164,11 +113,12 @@ async def check_item_rework() -> None:
                         result = await get_lots_item_more_200(user[1], user, iteration)
                         lots = result['lots']
                         for lot in lots:
-                            if await checking_conditions(user, lot):
+                            if await checking_conditions(user, lot) and (user[0], lot["startTime"], lot["itemId"]) not in spam_message:
                                 try:
                                     await bot.send_message(user[0],
                                                            notification_text.format(dbitem.search_item_name_by_id(user[1]),
                                                                                     lot["buyoutPrice"]))
+                                    spam_message.append((user[0], lot["startTime"], lot["itemId"]))
                                     continue
                                 except ChatNotFound:
                                     pass
@@ -179,6 +129,7 @@ async def check_item_rework() -> None:
                         iteration += 1
             except Exception as ex:
                 await bot.send_message(1254191582, ex)
-
         print("Конец проверки")
+        if sys.getsizeof(spam_message) >= 16777216:
+            spam_message = []
         await asyncio.sleep(60)
