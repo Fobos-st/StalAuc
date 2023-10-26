@@ -12,4 +12,4 @@ async def send_table(message: types.Message):
 
 
 def register_client_handlers_xlsx_table(dp: Dispatcher):
-    dp.register_message_handler(send_table, content_types=['text'], text="Перкуп таблица")
+    dp.register_message_handler(send_table, content_types=['text'], text="Перекуп таблица")

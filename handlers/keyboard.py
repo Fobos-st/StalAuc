@@ -8,7 +8,7 @@ main_button = [
      types.KeyboardButton(text="Удалить запрос")],
     [types.KeyboardButton(text="Средняя цена"),
      types.KeyboardButton(text="История цен")],
-    [types.KeyboardButton(text="Перкуп таблица")]
+    [types.KeyboardButton(text="Перекуп таблица")]
 ]
 main_kb = types.ReplyKeyboardMarkup(keyboard=main_button, resize_keyboard=True, one_time_keyboard=False)
 
