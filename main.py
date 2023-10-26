@@ -5,8 +5,9 @@ from create_bot import create_bot_factory
 from create_bot import dp
 from database import dbsql
 from handlers.admin_handler import content, report, update
-from handlers.client_handler import feedback, start, get_auc_lot, user_request, average_price, price_history_chart
+from handlers.client_handler import feedback, start, get_auc_lot, user_request, average_price, price_history_chart, xlsx_table
 
+handlers.client_handler.xlsx_table.register_client_handlers_xlsx_table(dp)
 handlers.client_handler.start.register_client_handlers_start(dp)
 handlers.client_handler.feedback.register_client_handlers_feedback(dp)
 handlers.client_handler.get_auc_lot.register_client_handlers_get_auc_lot(dp)
