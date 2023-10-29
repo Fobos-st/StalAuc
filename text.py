@@ -63,5 +63,6 @@ additional_features = {
 "HEAL_EFFICIENCY" : "Эффективка лечения",
 "EXPLOSION_DMG" : "+Защита от взрыва",
 "BULLET_DMG" : "+Пулестойкость",
-"BIOLOGICAL_ACC": "-Био"
+"BIOLOGICAL_ACC": "-Био",
+"THERMAL_DAMAGE_PROTECTION": "Сопр-температуре"
 }
