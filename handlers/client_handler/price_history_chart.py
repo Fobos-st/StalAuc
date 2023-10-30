@@ -129,20 +129,20 @@ async def parse_json_file_test(days, item_id, minutes):
 
             if high_prices[count] < data_item[counter]["price"] / data_item[counter]["amount"]:
                 high_prices[count] = data_item[counter]["price"] / data_item[counter]["amount"]
-                counter += 1
                 price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
+                counter += 1
                 value[count] += 1
                 continue
 
             if low_prices[count] > data_item[counter]["price"] / data_item[counter]["amount"]:
                 low_prices[count] = data_item[counter]["price"] / data_item[counter]["amount"]
-                counter += 1
                 price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
+                counter += 1
                 value[count] += 1
                 continue
 
-            counter += 1
             price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
+            counter += 1
             value[count] += 1
         else:
             close_prices.append(data_item[counter - 1]["price"] / data_item[counter - 1]["amount"])
