@@ -13,6 +13,9 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 
+down = [1254191582, 6268904528, 1468580382]
+
+
 class WaitItemName(StatesGroup):
     text = State()
 
@@ -45,7 +48,7 @@ def remaining_time(time_str):
         return f"Осталось {remaining_time.seconds} секунд"
 
 
-async def create_get_auc_lot_img(lots: dict, id_item: str, username: str) -> str:
+async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_id: int) -> str:
     #  Сделать перевод словарь с лотами сразу вне данной функции чтобы проверять
     #  длинну и в случае отсуствия лота не выводить пустой ПДА
     im2 = Image.open(database.dbitem.get_item_image(id_item)).convert("RGBA").resize((95, 95))
@@ -158,6 +161,64 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str) -> str
                     # Добавляем шрифт к изображению
                     font=font1,
                     fill='#70CF22')
+        elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional'] and user_id in down:
+            if len(lot['additional']["bonus_properties"]) == 3:
+                draw_text.text(
+                    (750, 100 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (750, 125 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (750, 150 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (700, 125 + 99 * iteration),
+                    f'*',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+            elif len(lot['additional']["bonus_properties"]) == 2:
+                draw_text.text(
+                    (750, 110 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (750, 140 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (700, 125 + 99 * iteration),
+                    f'*',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+            else:
+                draw_text.text(
+                    (750, 125 + 99 * iteration),
+                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
+                draw_text.text(
+                    (700, 125 + 99 * iteration),
+                    f'*',
+                    # Добавляем шрифт к изображению
+                    font=font1,
+                    fill='#70CF22')
         elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional']:
             draw_text.text(
                 (750, 125 + 99 * iteration),
@@ -210,7 +271,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
 
         lots = await API_request.get_auc_item_first(id_item)
         if len(lots) != 0:
-            filename = await create_get_auc_lot_img(lots, id_item, message.from_user.first_name)
+            filename = await create_get_auc_lot_img(lots, id_item, message.from_user.first_name, message.from_user.id)
             with open(filename, 'rb') as file:
                 await bot.send_photo(message.from_user.id, file,
                                      reply_markup=ikb)
@@ -248,7 +309,7 @@ async def cmd_req(callback_query: types.CallbackQuery, state: FSMContext):
         await state.finish()
         lots = await API_request.get_auc_item_first(id_item)
         if len(lots) != 0:
-            filename = await create_get_auc_lot_img(lots, id_item, callback_query.from_user.first_name)
+            filename = await create_get_auc_lot_img(lots, id_item, callback_query.from_user.first_name, callback_query.from_user.id)
             with open(filename, 'rb') as file:
                 await bot.send_photo(callback_query.from_user.id, file,
                                      reply_markup=ikb)
@@ -289,7 +350,8 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
         ikb = await get_control_menu(callback_query.data)
 
     if len(lots) != 0:
-        filename = await create_get_auc_lot_img(lots, callback_query.data.split()[2], callback_query.from_user.first_name)
+        filename = await create_get_auc_lot_img(lots, callback_query.data.split()[2], callback_query.from_user.first_name,
+                                                callback_query.from_user.id)
         with open(filename, 'rb') as file:
             photo = InputMedia(type="photo", media=file)
             await callback_query.message.edit_media(media=photo,
