@@ -12,10 +12,12 @@ from openpyxl import Workbook
 from openpyxl.chart import (
     BarChart,
     StockChart,
-    Reference
+    Reference,
+    LineChart
 )
 from openpyxl.chart.axis import ChartLines
 from openpyxl.chart.updown_bars import UpDownBars
+import openpyxl
 
 import database.dbitem
 import handlers.keyboard
@@ -98,6 +100,7 @@ async def parse_json_file_test(days, item_id, minutes):
     day = 0
     count = 0
 
+    price_sell = [data_item[counter]["price"] / data_item[counter]["amount"]]
     dates_sold = [data_item[counter]["time"]]
     open_prices = [data_item[counter]["price"] / data_item[counter]["amount"]]
     high_prices = [data_item[counter]["price"] / data_item[counter]["amount"]]
@@ -119,6 +122,7 @@ async def parse_json_file_test(days, item_id, minutes):
                 low_prices.append(data_item[counter]["price"] / data_item[counter]["amount"])
                 close_prices.append(data_item[counter - 1]["price"] / data_item[counter - 1]["amount"])
                 value.append(1)
+                price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
                 counter += 1
                 count += 1
                 continue
@@ -126,20 +130,24 @@ async def parse_json_file_test(days, item_id, minutes):
             if high_prices[count] < data_item[counter]["price"] / data_item[counter]["amount"]:
                 high_prices[count] = data_item[counter]["price"] / data_item[counter]["amount"]
                 counter += 1
+                price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
                 value[count] += 1
                 continue
 
             if low_prices[count] > data_item[counter]["price"] / data_item[counter]["amount"]:
                 low_prices[count] = data_item[counter]["price"] / data_item[counter]["amount"]
                 counter += 1
+                price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
                 value[count] += 1
                 continue
 
             counter += 1
+            price_sell.append(data_item[counter]["price"] / data_item[counter]["amount"])
             value[count] += 1
         else:
             close_prices.append(data_item[counter - 1]["price"] / data_item[counter - 1]["amount"])
-            return dates_sold[::-1], open_prices[::-1], high_prices[::-1], low_prices[::-1], close_prices[::-1], value[::-1]
+            return (dates_sold[::-1], open_prices[::-1], high_prices[::-1], low_prices[::-1],
+                    close_prices[::-1], value[::-1], price_sell[::-1])
 
 
 # async def create_table(days, user_id, item_id):
@@ -182,7 +190,7 @@ async def parse_json_file_test(days, item_id, minutes):
 
 
 async def create_table_excel(days, user_id, item_id, minuts):
-    dates_sold, open_prices, high_prices, low_prices, close_prices, value = await parse_json_file_test(days, item_id ,minuts)
+    dates_sold, open_prices, high_prices, low_prices, close_prices, value, price_list = await parse_json_file_test(days, item_id ,minuts)
     rows = []
     for i in range(len(dates_sold)):
         rows.append([])
@@ -254,9 +262,28 @@ async def create_table_excel(days, user_id, item_id, minuts):
     ws.add_chart(b1, "A27")
 
     filename = str(user_id) + str(days) + item_id
-    wb.save(f"{filename}.xlsx")
+    wb.save(f"{filename}Свечевой.xlsx")
 
-    return filename + '.xlsx'
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+
+    for i in price_list:
+        sheet.append([i])
+
+    values = Reference(sheet, min_col=1, min_row=1,
+                       max_col=1, max_row=len(price_list))
+
+    # Create object of LineChart class
+    chart = LineChart()
+
+    chart.add_data(values)
+    chart.title = " График "
+    chart.x_axis.title = " Номер продажи "
+    chart.y_axis.title = " Цена продажи "
+    sheet.add_chart(chart, "E2")
+    wb.save(f"{filename}Линейный.xlsx")
+
+    return filename
 
 
 # @dp.message_handler(text='История цен')
@@ -333,9 +360,12 @@ async def get_count_timing(message: types.Message, state: FSMContext):
             filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], int(message.text))
             await bot.send_message(1254191582, filename)
             await state.finish()
-            with open(filename, 'rb') as file:
+            with open(f'{filename}Свечевой.xlsx', 'rb') as file:
                 await bot.send_document(message.from_user.id, file)
-            os.remove(filename)
+            with open(f'{filename}Линейный.xlsx', 'rb') as file:
+                await bot.send_document(message.from_user.id, file)
+            os.remove(f'{filename}Линейный.xlsx')
+            os.remove(f'{filename}Свечевой.xlsx')
         else:
             data = await state.get_data()
             msg = await message.answer('Собираю информцию')
@@ -345,10 +375,12 @@ async def get_count_timing(message: types.Message, state: FSMContext):
             await asyncio.sleep(int(data['days']) / 10)
             filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], 1440)
             await bot.send_message(1254191582, filename)
-            await state.finish()
-            with open(filename, 'rb') as file:
+            with open(f'{filename}Свечевой.xlsx', 'rb') as file:
                 await bot.send_document(message.from_user.id, file)
-            os.remove(filename)
+            with open(f'{filename}Линейный.xlsx', 'rb') as file:
+                await bot.send_document(message.from_user.id, file)
+            os.remove(f'{filename}Линейный.xlsx')
+            os.remove(f'{filename}Свечевой.xlsx')
     except ValueError:
         data = await state.get_data()
         await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
@@ -361,9 +393,12 @@ async def get_count_timing(message: types.Message, state: FSMContext):
         filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], 1440)
         await bot.send_message(1254191582, filename)
         await state.finish()
-        with open(filename, 'rb') as file:
+        with open(f'{filename}Свечевой.xlsx', 'rb') as file:
             await bot.send_document(message.from_user.id, file)
-        os.remove(filename)
+        with open(f'{filename}Линейный.xlsx', 'rb') as file:
+            await bot.send_document(message.from_user.id, file)
+        os.remove(f'{filename}Линейный.xlsx')
+        os.remove(f'{filename}Свечевой.xlsx')
 
 
 def register_client_handlers_price_history_chart(dp: Dispatcher):
