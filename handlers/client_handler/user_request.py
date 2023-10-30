@@ -52,7 +52,8 @@ async def get_item_name(message: types.Message, state: FSMContext):
         await state.update_data(item_id=callback_data)
         await MakeRequestUser.next()
     else:
-        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻',
+                             reply_markup=main_kb)
         await state.finish()
 
 
@@ -60,7 +61,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
 async def reg_request_in_db_one(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == "Отмена":
         await state.finish()
-        await bot.send_message(callback_query.from_user.id, "(")
+        await bot.send_message(callback_query.from_user.id, "(", reply_markup=main_kb)
         await callback_query.message.delete()
     else:
         await callback_query.message.delete()
@@ -95,7 +96,7 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
 """,       reply_markup=main_kb)
             await state.finish()
     except ValueError:
-        await message.answer('Неправильная форма записи')
+        await message.answer('Неправильная форма записи', reply_markup=main_kb)
 
 
 # @dp.callback_query_handler(state=MakeRequestUser.quality)
@@ -118,7 +119,7 @@ async def reg_request_in_db_four(callback_query: types.CallbackQuery, state: FSM
 Цена: от {data['price']} и меньше
 Качество: от '{text.QUALITY[int(data['quality'])]}' и более
 Заточка: {additional}
-""")
+""", reply_markup=main_kb)
     update_sqlite_table(callback_query.from_user.id, data['item_id'], data['price'], data['quality'],
                         data['additional'])
     await state.finish()

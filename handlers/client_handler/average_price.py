@@ -12,7 +12,7 @@ from text import average_price_artifact, input_item_name_messeage
 from API_request import make_http_get_request
 from config import HEADERS
 from create_bot import bot
-from ..keyboard import cancel_inline_keyboard
+from ..keyboard import cancel_inline_keyboard, main_kb
 
 
 class ItemName(StatesGroup):
@@ -106,7 +106,8 @@ async def get_name(message: types.Message, state: FSMContext):
         await msg1.delete()
         await state.finish()
     else:
-        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻',
+                             reply_markup=main_kb)
         await state.finish()
 
 
@@ -114,7 +115,7 @@ async def selection_item(callback_query: types.CallbackQuery, state: FSMContext)
     if callback_query.data == "Отмена":
         await state.finish()
         await callback_query.message.delete()
-        await bot.send_message(callback_query.from_user.id, "(")
+        await bot.send_message(callback_query.from_user.id, "(", reply_markup=handlers.keyboard.main_kb)
     else:
         await state.finish()
         await callback_query.message.delete()

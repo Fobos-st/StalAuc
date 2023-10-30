@@ -312,7 +312,8 @@ async def get_item_id_one(message: types.Message, state: FSMContext):
         await CreateChart.next()
         await message.answer("За сколько дней вывести информацию? (число от 1 до 31)")
     else:
-        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻')
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻',
+                             reply_markup=handlers.keyboard.main_kb)
         await state.finish()
 
 
@@ -321,7 +322,7 @@ async def get_item_id_two(callback_query: types.CallbackQuery, state: FSMContext
     if callback_query.data == "Отмена":
         await state.finish()
         await callback_query.message.delete()
-        await bot.send_message(callback_query.from_user.id, "(")
+        await bot.send_message(callback_query.from_user.id, "(", reply_markup=handlers.keyboard.main_kb)
     else:
         await CreateChart.next()
         await callback_query.message.delete()
@@ -338,7 +339,7 @@ async def get_count_days(message: types.Message, state: FSMContext):
         days = int(message.text)
     except ValueError:
         await state.finish()
-        return await message.answer('Некоректный ввод данных')
+        return await message.answer('Некоректный ввод данных', reply_markup=handlers.keyboard.main_kb)
     if 0 < days <= 31:
         async with state.proxy() as data:
             data['days'] = days
@@ -363,7 +364,7 @@ async def get_count_timing(message: types.Message, state: FSMContext):
             with open(f'{filename}Свечевой.xlsx', 'rb') as file:
                 await bot.send_document(message.from_user.id, file)
             with open(f'{filename}Линейный.xlsx', 'rb') as file:
-                await bot.send_document(message.from_user.id, file)
+                await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
             os.remove(f'{filename}Линейный.xlsx')
             os.remove(f'{filename}Свечевой.xlsx')
         else:
@@ -378,7 +379,7 @@ async def get_count_timing(message: types.Message, state: FSMContext):
             with open(f'{filename}Свечевой.xlsx', 'rb') as file:
                 await bot.send_document(message.from_user.id, file)
             with open(f'{filename}Линейный.xlsx', 'rb') as file:
-                await bot.send_document(message.from_user.id, file)
+                await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
             os.remove(f'{filename}Линейный.xlsx')
             os.remove(f'{filename}Свечевой.xlsx')
     except ValueError:
@@ -396,7 +397,7 @@ async def get_count_timing(message: types.Message, state: FSMContext):
         with open(f'{filename}Свечевой.xlsx', 'rb') as file:
             await bot.send_document(message.from_user.id, file)
         with open(f'{filename}Линейный.xlsx', 'rb') as file:
-            await bot.send_document(message.from_user.id, file)
+            await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
         os.remove(f'{filename}Линейный.xlsx')
         os.remove(f'{filename}Свечевой.xlsx')
 

@@ -56,7 +56,7 @@ async def get_answer_text(message: types.Message, state: FSMContext):
 async def get_answer_id(message: types.Message, state: FSMContext):
     data = await state.get_data()
     try:
-        await bot.send_message(int(message.text), f"Ответ от разаботчика \n{data['text']}")
+        await bot.send_message(int(message.text), f"Ответ от разаботчика \n{data['text']}", reply_markup=main_kb)
         await message.answer("Пользователь получил ответ")
         await state.finish()
     except Exception:

@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from handlers.keyboard import main_kb
 
 from create_bot import dp, bot
 
@@ -17,7 +18,8 @@ async def cmd_ticket(message: types.Message):
 
 @dp.message_handler(state=CreateTicket.text)
 async def send_ticket_admin(message: types.Message, state: FSMContext):
-    await message.answer("Отлично, разработчик обязательно получит ваше столь важное сообщение")
+    await message.answer("Отлично, разработчик обязательно получит ваше столь важное сообщение",
+                         reply_markup=main_kb)
     await state.finish()
     await bot.send_message(1254191582, f"""Собщение от {message.from_user.first_name} {message.from_user.id},
 {message.text}
