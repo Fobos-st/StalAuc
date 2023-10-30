@@ -12,6 +12,7 @@ from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK, PARAMS_CHECK_
 from database import dbitem
 from database.dbsql import print_all_users
 from text import notification_text
+from handlers.keyboard import main_kb
 
 bot = Bot(BOT_TOKEN)
 
@@ -96,7 +97,7 @@ async def check_item_rework() -> None:
                         try:
                             await bot.send_message(user[0],
                                                    notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                                                            lot["buyoutPrice"]))
+                                                                            lot["buyoutPrice"]), reply_markup=main_kb)
                             spam_message.append((user[0], lot["startTime"], lot["itemId"]))
                             continue
                         except ChatNotFound:
@@ -117,7 +118,7 @@ async def check_item_rework() -> None:
                                 try:
                                     await bot.send_message(user[0],
                                                            notification_text.format(dbitem.search_item_name_by_id(user[1]),
-                                                                                    lot["buyoutPrice"]))
+                                                                                    lot["buyoutPrice"]), reply_markup=main_kb)
                                     spam_message.append((user[0], lot["startTime"], lot["itemId"]))
                                     continue
                                 except ChatNotFound:
@@ -128,7 +129,10 @@ async def check_item_rework() -> None:
                                     pass
                         iteration += 1
             except Exception as ex:
-                await bot.send_message(1254191582, ex)
+                try:
+                    await bot.send_message( 1254191582, f'{ex} \n {lot} \n {user}')
+                except Exception:
+                    await bot.send_message(1254191582, f'{ex} \n {user}')
         print("Конец проверки")
         if sys.getsizeof(spam_message) >= 16777216:
             spam_message = []
