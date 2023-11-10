@@ -122,6 +122,7 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
             for bonus in lot["additional"]["bonus_properties"]:
                 if bonus not in text.additional_features:
                     await bot.send_message(1254191582, bonus)
+                    await bot.send_message(int(user_id), "Увы я не смог раздобыть информацию, прошу написать в -> /ticket и сказать по какому артефакт вы хотели узнать информацию")
             if len(lot['additional']["bonus_properties"]) == 3:
                 draw_text.text(
                     (750, 100 + 99 * iteration),
@@ -247,6 +248,7 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
 async def cmd_item_check_check_item(message: types.Message):
     if message.text == "Проверка цены":
         await WaitItemName.text.set()
+        await message.answer("Работает не стабильно с артефактами с доп.характеристиками, если вам не пришёл ответ на ваш запрос от бота прошу написть в -> /ticket")
         await message.answer(text.input_item_name_messeage,
                              reply_markup=cancel_inline_keyboard)
     else:

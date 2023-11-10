@@ -64,5 +64,9 @@ additional_features = {
 "EXPLOSION_DMG" : "+Защита от взрыва",
 "BULLET_DMG" : "+Пулестойкость",
 "BIOLOGICAL_ACC": "-Био",
-"THERMAL_DAMAGE_PROTECTION": "Сопр-температуре"
+"THERMAL_DAMAGE_PROTECTION": "Сопр-температуре",
+"BLEEDING_ACC": "-Кровотечение",
+"REACTION_TO_TEAR": "Реакция.разрыв",
+"RADIATION_DAMAGE_PROTECTION": "Защита от рады",
+"PSYCHO_DAMAGE_PROTECTION": "Защита от пси"
 }
