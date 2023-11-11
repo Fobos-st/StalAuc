@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime, timedelta
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -10,7 +11,7 @@ import database.dbitem
 import handlers.keyboard
 from text import average_price_artifact, input_item_name_messeage
 from API_request import make_http_get_request
-from config import HEADERS
+from config import HEADERS, URL_GET_HISTORY_AUC_LOTS, HEADERS_1, PARAMS_CHECK
 from create_bot import bot
 from ..keyboard import cancel_inline_keyboard, main_kb
 
@@ -27,6 +28,17 @@ async def check_time(time: str) -> bool:
         return True
     else:
         return False
+
+
+async def get_data_item(item_id):
+    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK)
+    data_item = json.loads(data_item)
+    try:
+        data_item = data_item['prices']
+    except KeyError:
+        await asyncio.sleep(10)
+        await get_data_item(item_id)
+    return data_item
 
 
 async def get_auction_average_price(item_id) -> str:
