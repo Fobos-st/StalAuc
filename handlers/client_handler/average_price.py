@@ -9,7 +9,7 @@ import API_request
 from aiogram.types import ChatActions
 import database.dbitem
 import handlers.keyboard
-from text import average_price_artifact, input_item_name_messeage
+from text import *
 from API_request import make_http_get_request
 from config import HEADERS, URL_GET_HISTORY_AUC_LOTS, HEADERS_1, PARAMS_CHECK
 from create_bot import bot
@@ -46,35 +46,77 @@ async def get_auction_average_price(item_id) -> str:
         item_id = list(item_id.values())[0]
     except AttributeError:
         ...
-    max_iteration = 3
+    max_iteration = 5
     if database.dbitem.is_it_artifact(item_id):
-        sum_items = [0, 0, 0, 0, 0, 0]
-        count_items = [0, 0, 0, 0, 0, 0]
+        sum_items = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
+        count_items = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
         for a in range(max_iteration):
-            try:
-                url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
-            except AttributeError:
-                url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
-            params = {"limit": "100", "additional": "true", "offset": f"{a * 100}"}
-            data = await make_http_get_request(url, HEADERS, params)
-            data = json.loads(data)
-            lots = data['prices']  # KeyError: 'lots'
+            lots = await get_data_item(item_id)
             for lot in lots:
                 if await check_time(lot['time']):
-                    try:
-                        count_items[int(lot['additional']['qlt'])] += lot['amount']
-                        sum_items[int(lot['additional']['qlt'])] += lot['price']
-                    except KeyError:
-                        print(lot)
+
+                    if 'stats_random' not in lot['additional']:  # Если неизученный
+                        try:
+                            count_items[lot['additional']['qlt']][0] += lot['amount']
+                            sum_items[lot['additional']['qlt']][0] += lot['price']
+                        except KeyError:
+                            count_items[0][0] += lot['amount']
+                            sum_items[0][0] += lot['price']
+
+                    elif 'stats_random' in lot['additional'] and 'qlt' not in lot['additional']:  # Если у обычного нету пункта qlt
+                        if 'ptn' not in lot['additional'] or 1 >= lot['additional']['ptn'] <= 4:  # С 0 по 4 тир
+                            count_items[0][1] += lot['amount']
+                            sum_items[0][1] += lot['price']
+                        elif lot['additional']['ptn'] == 5:  # 5 тир
+                            count_items[0][2] += lot['amount']
+                            sum_items[0][2] += lot['price']
+                        elif 6 >= lot['additional']['ptn'] <= 9:  # С 6 по 9 тир
+                            count_items[0][3] += lot['amount']
+                            sum_items[0][3] += lot['price']
+                        elif lot['additional']['ptn'] == 10:  # 10 тир
+                            count_items[0][4] += lot['amount']
+                            sum_items[0][4] += lot['price']
+                        elif 11 >= lot['additional']['ptn'] <= 14:  # С 11 по 14 тир
+                            count_items[0][5] += lot['amount']
+                            sum_items[0][5] += lot['price']
+                        elif lot['additional']['ptn'] == 15:  # 15 тир
+                            count_items[0][6] += lot['amount']
+                            sum_items[0][6] += lot['price']
+
+                    elif 'stats_random' in lot['additional']:  # Если изученный
+                        if 'ptn' not in lot['additional'] or 1 >= lot['additional']['ptn'] <= 4:  # С 0 по 4 тир
+                            count_items[lot['additional']['qlt']][1] += lot['amount']
+                            sum_items[lot['additional']['qlt']][1] += lot['price']
+                        elif lot['additional']['ptn'] == 5:  # 5 тир
+                            count_items[lot['additional']['qlt']][2] += lot['amount']
+                            sum_items[lot['additional']['qlt']][2] += lot['price']
+                        elif 6 >= lot['additional']['ptn'] <= 9:  # С 6 по 9 тир
+                            count_items[lot['additional']['qlt']][3] += lot['amount']
+                            sum_items[lot['additional']['qlt']][3] += lot['price']
+                        elif lot['additional']['ptn'] == 10:  # 10 тир
+                            count_items[lot['additional']['qlt']][4] += lot['amount']
+                            sum_items[lot['additional']['qlt']][4] += lot['price']
+                        elif 11 >= lot['additional']['ptn'] <= 14:  # С 11 по 14 тир
+                            count_items[lot['additional']['qlt']][5] += lot['amount']
+                            sum_items[lot['additional']['qlt']][5] += lot['price']
+                        elif lot['additional']['ptn'] == 15:  # 15 тир
+                            count_items[lot['additional']['qlt']][6] += lot['amount']
+                            sum_items[lot['additional']['qlt']][6] += lot['price']
+
                 else:
                     break
-        result1 = '{0:,}'.format(int(sum_items[0] / count_items[0])).replace(',', '.') if sum_items[0] != 0 else 'Не было продаж'
-        result2 = '{0:,}'.format(int(sum_items[1] / count_items[1])).replace(',', '.') if sum_items[1] != 0 else 'Не было продаж'
-        result3 = '{0:,}'.format(int(sum_items[2] / count_items[2])).replace(',', '.') if sum_items[2] != 0 else 'Не было продаж'
-        result4 = '{0:,}'.format(int(sum_items[3] / count_items[3])).replace(',', '.') if sum_items[3] != 0 else 'Не было продаж'
-        result5 = '{0:,}'.format(int(sum_items[4] / count_items[4])).replace(',', '.') if sum_items[4] != 0 else 'Не было продаж'
-        result6 = '{0:,}'.format(int(sum_items[5] / count_items[5])).replace(',', '.') if sum_items[5] != 0 else 'Не было продаж'
-        return average_price_artifact.format(result1, result2, result3, result4, result5, result6)
+        text = average_price_artifact_start
+        for i in range(6):
+            if sum(count_items[i]) != 0:
+                text += QUALITY_AVERAGE_PRICE[i]
+                text += '\n'
+                for n in range(7):
+                    if count_items[i][n] != 0:
+                        text += TIER_AVERAGE_PRICE[n].format('{0:,}'.format(int(sum_items[i][n] / count_items[i][n])).replace(',', '.')) if sum_items[i][n] != 0 else ''
+                        text += '\n'
+        return text
     else:
         sum_items = 0
         count_items = 0
@@ -114,9 +156,9 @@ async def get_name(message: types.Message, state: FSMContext):
         msg1 = await message.answer('Собираю информацию')
         await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
         text_msg = await get_auction_average_price(id_item)
+        await state.finish()
         await bot.send_message(message.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
         await msg1.delete()
-        await state.finish()
     else:
         await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻',
                              reply_markup=main_kb)
