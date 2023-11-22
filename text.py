@@ -58,6 +58,15 @@ average_price_artifact = """
 Легендарный: {}
 """
 
+artefact_value = {
+    0: [0, 50],
+    1: [100, 10],
+    2: [110, 10],
+    3: [120, 10],
+    4: [130, 10],
+    5: [140, 10]
+}
+
 average_price_artifact_start = """
 Средняя цена за последние 7 дней
 """
@@ -82,5 +91,6 @@ additional_features = {
 "BLEEDING_ACC": "-Кровотечение",
 "REACTION_TO_TEAR": "Реакция.разрыв",
 "RADIATION_DAMAGE_PROTECTION": "Защита от рады",
-"PSYCHO_DAMAGE_PROTECTION": "Защита от пси"
+"PSYCHO_DAMAGE_PROTECTION": "Защита от пси",
+"BIOLOGICAL_DAMAGE_PROTECTION" : "Защита от био"
 }
