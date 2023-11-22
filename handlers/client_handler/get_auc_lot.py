@@ -7,13 +7,14 @@ import API_request
 import database.dbitem
 import handlers.keyboard
 import text
+from text import artefact_value
 from create_bot import bot, dp
 from ..keyboard import cancel_inline_keyboard, get_control_menu
 from PIL import Image, ImageDraw, ImageFont
 import os
 
 
-down = [1254191582, 6268904528, 1468580382]
+down = [1254191582, 6268904528, 1468580382, 1923768231, 6181074253]
 
 
 class WaitItemName(StatesGroup):
@@ -57,6 +58,7 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
     font1 = ImageFont.truetype("database/Roboto-Medium.ttf", size=21)
     iteration = 0
     item_name = database.dbitem.search_item_name_by_id(id_item)
+    artefact = database.dbitem.is_it_artifact(id_item)
     for lot in lots:
         im1.paste(im2, (45, 95 + 99 * iteration), mask=im2)
 
@@ -70,42 +72,89 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
         }
 
         draw_text = ImageDraw.Draw(im1)
-        try:
+        if artefact:
+            try:
+                if 'ptn' in lot['additional']:
+                    draw_text.text(
+                        (150, 97 + 99 * iteration),
+                        f'{item_name} +{lot["additional"]["ptn"]}',
+                        # Добавляем шрифт к изображению
+                        font=font,
+                        fill=f'#{quality_color[lot["additional"]["qlt"]]}')
+                else:
+                    draw_text.text(
+                        (150, 97 + 99 * iteration),
+                        f'{item_name}',
+                        # Добавляем шрифт к изображению
+                        font=font,
+                        fill=f'#{quality_color[lot["additional"]["qlt"]]}')
+            except Exception:
+                if 'ptn' in lot['additional']:
+                    draw_text.text(
+                        (150, 97 + 99 * iteration),
+                        f'{item_name} +{lot["additional"]["ptn"]}',
+                        # Добавляем шрифт к изображению
+                        font=font,
+                        fill=f'#{quality_color[0]}')
+                else:
+                    draw_text.text(
+                        (150, 97 + 99 * iteration),
+                        f'{item_name}',
+                        # Добавляем шрифт к изображению
+                        font=font,
+                        fill=f'#{quality_color[0]}')
+        else:
             if 'ptn' in lot['additional']:
                 draw_text.text(
-                    (150, 105 + 99 * iteration),
-                    f'{item_name} +{lot["additional"]["ptn"]}',
-                    # Добавляем шрифт к изображению
-                    font=font,
-                    fill=f'#{quality_color[lot["additional"]["qlt"]]}')
-            else:
-                draw_text.text(
-                    (150, 105 + 99 * iteration),
-                    f'{item_name}',
-                    # Добавляем шрифт к изображению
-                    font=font,
-                    fill=f'#{quality_color[lot["additional"]["qlt"]]}')
-        except Exception:
-            if 'ptn' in lot['additional']:
-                draw_text.text(
-                    (150, 105 + 99 * iteration),
+                    (150, 97 + 99 * iteration),
                     f'{item_name} +{lot["additional"]["ptn"]}',
                     # Добавляем шрифт к изображению
                     font=font,
                     fill=f'#{quality_color[0]}')
             else:
                 draw_text.text(
-                    (150, 105 + 99 * iteration),
+                    (150, 110 + 99 * iteration),
                     f'{item_name}',
                     # Добавляем шрифт к изображению
                     font=font,
                     fill=f'#{quality_color[0]}')
-        draw_text.text(
-            (150, 150 + 99 * iteration),
-            remaining_time(lot['endTime']),
-            # Добавляем шрифт к изображению
-            font=font1,
-            fill='#cbaf2a')
+
+        if 'stats_random' in lot['additional']:
+            try:
+                draw_text.text(
+                    (150, 128 + 99 * iteration),
+                    f'{round(artefact_value[lot["additional"]["qlt"]][0] + artefact_value[lot["additional"]["qlt"]][1] * ((lot["additional"]["stats_random"] + 2) / 4), 2)}%',
+                    # Добавляем шрифт к изображению
+                    font=font,
+                    fill=f'#ffffff')
+            except Exception:
+                draw_text.text(
+                    (150, 128 + 99 * iteration),
+                    f'{round(artefact_value[lot["additional"]["qlt"]][0] + artefact_value[lot["additional"]["qlt"]][1] * ((lot["additional"]["stats_random"] + 2) / 4), 2)}%',
+                    # Добавляем шрифт к изображению
+                    font=font,
+                    fill=f'#ffffff')
+        elif "stats_random" not in lot['additional'] and artefact:
+            draw_text.text(
+                (150, 128 + 99 * iteration),
+                'Не изучен',
+                # Добавляем шрифт к изображению
+                font=font1,
+                fill='#DBDBDB')
+        if artefact:
+            draw_text.text(
+                (150, 158 + 99 * iteration),
+                remaining_time(lot['endTime']),
+                # Добавляем шрифт к изображению
+                font=font1,
+                fill='#cbaf2a')
+        else:
+            draw_text.text(
+                (150, 150 + 99 * iteration),
+                remaining_time(lot['endTime']),
+                # Добавляем шрифт к изображению
+                font=font1,
+                fill='#cbaf2a')
         draw_text.text(
             (420, 128 + 99 * iteration),
             '{0:,}'.format(int(lot["startPrice"])).replace(',', '.'),
@@ -118,122 +167,116 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
             # Добавляем шрифт к изображению
             font=font,
             fill='#DBDBDB')
-        if "stats_random" in lot['additional'] and "bonus_properties" in lot['additional']:
-            for bonus in lot["additional"]["bonus_properties"]:
-                if bonus not in text.additional_features:
-                    await bot.send_message(1254191582, bonus)
-                    await bot.send_message(int(user_id), "Увы я не смог раздобыть информацию, прошу написать в -> /ticket и сказать по какому артефакт вы хотели узнать информацию")
-            if len(lot['additional']["bonus_properties"]) == 3:
-                draw_text.text(
-                    (750, 100 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (750, 125 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (750, 150 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-            elif len(lot['additional']["bonus_properties"]) == 2:
-                draw_text.text(
-                    (750, 110 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (750, 140 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
+        if artefact:
+            if "stats_random" in lot['additional'] and "bonus_properties" in lot['additional']:
+                for bonus in lot["additional"]["bonus_properties"]:
+                    if bonus not in text.additional_features:
+                        await bot.send_message(1254191582, bonus)
+                        await bot.send_message(int(user_id), "Увы я не смог раздобыть информацию, прошу написать в -> /ticket и сказать по какому артефакт вы хотели узнать информацию")
+                if len(lot['additional']["bonus_properties"]) == 3:
+                    draw_text.text(
+                        (750, 100 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (750, 125 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (750, 150 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                elif len(lot['additional']["bonus_properties"]) == 2:
+                    draw_text.text(
+                        (750, 110 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (750, 140 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                else:
+                    draw_text.text(
+                        (750, 125 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+            elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional'] and user_id in down:
+                if len(lot['additional']["bonus_properties"]) == 3:
+                    draw_text.text(
+                        (750, 100 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (750, 125 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (750, 150 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (700, 125 + 99 * iteration),
+                        f'*',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                elif len(lot['additional']["bonus_properties"]) == 2:
+                    draw_text.text(
+                        (750, 110 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (750, 140 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (700, 125 + 99 * iteration),
+                        f'*',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                else:
+                    draw_text.text(
+                        (750, 125 + 99 * iteration),
+                        f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
+                    draw_text.text(
+                        (700, 125 + 99 * iteration),
+                        f'*',
+                        # Добавляем шрифт к изображению
+                        font=font1,
+                        fill='#70CF22')
             else:
                 draw_text.text(
-                    (750, 125 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
+                    (750, 128 + 99 * iteration),
+                    'Отсутствуют',
                     # Добавляем шрифт к изображению
                     font=font1,
-                    fill='#70CF22')
-        elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional'] and user_id in down:
-            if len(lot['additional']["bonus_properties"]) == 3:
-                draw_text.text(
-                    (750, 100 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (750, 125 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (750, 150 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (700, 125 + 99 * iteration),
-                    f'*',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-            elif len(lot['additional']["bonus_properties"]) == 2:
-                draw_text.text(
-                    (750, 110 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (750, 140 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (700, 125 + 99 * iteration),
-                    f'*',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-            else:
-                draw_text.text(
-                    (750, 125 + 99 * iteration),
-                    f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-                draw_text.text(
-                    (700, 125 + 99 * iteration),
-                    f'*',
-                    # Добавляем шрифт к изображению
-                    font=font1,
-                    fill='#70CF22')
-        elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional']:
-            draw_text.text(
-                (750, 125 + 99 * iteration),
-                'Не изучен',
-                # Добавляем шрифт к изображению
-                font=font1,
-                fill='#DBDBDB')
-        else:
-            draw_text.text(
-                (750, 125 + 99 * iteration),
-                'Отсутствуют',
-                # Добавляем шрифт к изображению
-                font=font1,
-                fill='#DBDBDB')
+                    fill='#DBDBDB')
 
         iteration += 1
 
