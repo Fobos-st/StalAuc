@@ -177,39 +177,33 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
                     draw_text.text(
                         (750, 100 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (750, 125 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (750, 150 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                 elif len(lot['additional']["bonus_properties"]) == 2:
                     draw_text.text(
                         (750, 110 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (750, 140 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                 else:
                     draw_text.text(
                         (750, 125 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
             elif not ("stats_random" in lot['additional']) and "bonus_properties" in lot['additional'] and user_id in down:
@@ -217,64 +211,54 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
                     draw_text.text(
                         (750, 100 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (750, 125 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (750, 150 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][2]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (700, 125 + 99 * iteration),
                         f'*',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                 elif len(lot['additional']["bonus_properties"]) == 2:
                     draw_text.text(
                         (750, 110 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (750, 140 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][1]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (700, 125 + 99 * iteration),
                         f'*',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                 else:
                     draw_text.text(
                         (750, 125 + 99 * iteration),
                         f'{text.additional_features[lot["additional"]["bonus_properties"][0]]}',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
                     draw_text.text(
                         (700, 125 + 99 * iteration),
                         f'*',
-                        # Добавляем шрифт к изображению
                         font=font1,
                         fill='#70CF22')
             else:
                 draw_text.text(
                     (750, 128 + 99 * iteration),
                     'Отсутствуют',
-                    # Добавляем шрифт к изображению
                     font=font1,
                     fill='#DBDBDB')
 
@@ -323,12 +307,12 @@ async def get_item_name(message: types.Message, state: FSMContext):
             os.remove(filename)
         else:
             await bot.send_sticker(message.from_user.id,
-                                   "CAACAgIAAxkBAAEKk1NlNK4RlDHOMdrArzsw3VlfNykj5QACQgEAAladvQpuq-gijfR0hDAE")
+                                   "CAACAgIAAxkBAAEK0RtlYhmgdk2_mHY-_XVPHsL_jqMXPgACTREAArqUMElZa2cwFYqlqDME")
             await message.answer('Предмета нету на аукционе в данный момент',
                                  reply_markup=handlers.keyboard.main_kb)
         await state.finish()
     else:
-        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻',
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время зимней вечеринки с пивом!🍻',
                              reply_markup=handlers.keyboard.main_kb)
         await state.finish()
 

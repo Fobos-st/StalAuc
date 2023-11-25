@@ -52,7 +52,7 @@ async def get_item_name(message: types.Message, state: FSMContext):
         await state.update_data(item_id=callback_data)
         await MakeRequestUser.next()
     else:
-        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Хэллоуинской вечеринки с пивом!🍻',
+        await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время зимней вечеринки с пивом!🍻',
                              reply_markup=main_kb)
         await state.finish()
 
