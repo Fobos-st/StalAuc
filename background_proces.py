@@ -130,7 +130,7 @@ async def check_item_rework() -> None:
                         iteration += 1
             except Exception as ex:
                 try:
-                    await bot.send_message( 1254191582, f'{ex} \n {lot} \n {user}')
+                    await bot.send_message(1254191582, f'{ex} \n {lot} \n {user}')
                 except Exception:
                     await bot.send_message(1254191582, f'{ex} \n {user}')
         print("Конец проверки")
