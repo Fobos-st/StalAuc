@@ -387,7 +387,7 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
                              reply_markup=ikb)
         os.remove(filename)
     else:
-        print(len(lots))
+        print('lol', len(lots))
 
 
 def register_client_handlers_get_auc_lot(dp: Dispatcher):

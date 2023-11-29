@@ -95,7 +95,7 @@ async def get_control_menu(callback: str) -> types.inline_keyboard.InlineKeyboar
             if callback[3] == 'asc':
                 auc_table_inline_button = [
                     [types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip"),
-                     types.InlineKeyboardButton(text="▶️", callback_data=f"add_page {page} {id_item} desc")],
+                     types.InlineKeyboardButton(text="▶️", callback_data=f"add_page {page} {id_item} asc")],
                     [types.InlineKeyboardButton(text="Выкуп 🔼", callback_data=f"none {page} {id_item} desc")]
                 ]
             else:
@@ -107,12 +107,20 @@ async def get_control_menu(callback: str) -> types.inline_keyboard.InlineKeyboar
             ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
             return ikb
         else:
-            auc_table_inline_button = [
-                [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} desc"),
-                 types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip"),
-                 types.InlineKeyboardButton(text="▶️", callback_data=f"add_page {page} {id_item} desc")],
-                [types.InlineKeyboardButton(text="Выкуп 🔽", callback_data=f"none {page} {id_item} asc")]
-            ]
+            if callback[3] == 'asc':
+                auc_table_inline_button = [
+                    [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} asc"),
+                     types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip"),
+                     types.InlineKeyboardButton(text="▶️", callback_data=f"add_page {page} {id_item} asc")],
+                    [types.InlineKeyboardButton(text="Выкуп 🔼", callback_data=f"none {page} {id_item} desc")]
+                ]
+            else:
+                auc_table_inline_button = [
+                    [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} desc"),
+                     types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip"),
+                     types.InlineKeyboardButton(text="▶️", callback_data=f"add_page {page} {id_item} desc")],
+                    [types.InlineKeyboardButton(text="Выкуп 🔽", callback_data=f"none {page} {id_item} asc")]
+                ]
             ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
             return ikb
     elif callback[3] == 'asc':

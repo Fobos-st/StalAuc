@@ -3,7 +3,6 @@ import aiohttp
 from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, first_querystring
 
 
-
 async def make_http_get_request(url: str, head: str, params: str):
     """
     Создаёт GET запрос
