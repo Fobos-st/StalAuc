@@ -23,10 +23,11 @@ import database.dbitem
 import handlers.keyboard
 import text
 from API_request import make_http_get_request
-from config import URL_GET_HISTORY_AUC_LOTS, HEADERS_1
+from config import URL_GET_HISTORY_AUC_LOTS, HEADERS_1, HEADERS_2
 from create_bot import bot
 from ..keyboard import cancel_inline_keyboard
 from aiogram.types import ChatActions
+HEADERS_LIST = True
 
 
 class CreateChart(StatesGroup):
@@ -44,12 +45,21 @@ async def check_time(time: str, days) -> bool:
     else:
         return False
 
+
 PARAMS_CHECK = {"limit": "200", "sort": "buyout_price", "additional": "true"}
 
 
 async def get_data_item(item_id):
-    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK)
-    data_item = json.loads(data_item)
+    global HEADERS_LIST
+    if HEADERS_LIST:
+        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK)
+        data_item = json.loads(data_item)
+        HEADERS_LIST = False
+    else:
+        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_2, PARAMS_CHECK)
+        data_item = json.loads(data_item)
+        HEADERS_LIST = True
+
     try:
         data_item = data_item['prices']
     except KeyError:
@@ -61,22 +71,23 @@ async def get_data_item(item_id):
 async def get_data_item_more_200(item_id, iteration):
     PARAMS_CHECK_MORE_200 = {"limit": "200", "sort": "buyout_price", "additional": "true",
                       "offset": f"{str(iteration * 200)}"}
-    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK_MORE_200)
-    data_item = json.loads(data_item)
+    global HEADERS_LIST
+    if HEADERS_LIST:
+        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK_MORE_200)
+        data_item = json.loads(data_item)
+        HEADERS_LIST = False
+    else:
+        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_2, PARAMS_CHECK_MORE_200)
+        data_item = json.loads(data_item)
+        HEADERS_LIST = True
+
     try:
         data_item = data_item['prices']
         return data_item
     except KeyError:
-        ex = True
         await asyncio.sleep(10)
-        while ex:
-            data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK_MORE_200)
-            data_item = json.loads(data_item)
-            try:
-                data_item = data_item['prices']
-                return data_item
-            except KeyError:
-                await asyncio.sleep(10)
+        await get_data_item(item_id)
+    return data_item
 
 
 async def check_time_passed(start_time, end_time, minutes):
@@ -190,7 +201,7 @@ async def parse_json_file_test(days, item_id, minutes):
 
 
 async def create_table_excel(days, user_id, item_id, minuts):
-    dates_sold, open_prices, high_prices, low_prices, close_prices, value, price_list = await parse_json_file_test(days, item_id ,minuts)
+    dates_sold, open_prices, high_prices, low_prices, close_prices, value, price_list = await parse_json_file_test(days, item_id, minuts)
     rows = []
     for i in range(len(dates_sold)):
         rows.append([])
