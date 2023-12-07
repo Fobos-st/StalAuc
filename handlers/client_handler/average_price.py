@@ -129,6 +129,7 @@ async def get_auction_average_price(item_id) -> str:
             data = await make_http_get_request(url, HEADERS, params)
             data = json.loads(data)
             lots = data['prices']  # KeyError: 'lots'
+
             for lot in lots:
                 if await check_time(lot['time']):
                     count_items += lot['amount']
@@ -137,7 +138,35 @@ async def get_auction_average_price(item_id) -> str:
                     break
             if count_items == 0:
                 return "Небыло продаж за последние 7 дней"
-            return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items)).replace(',', '.')}"
+
+            lots = await API_request.get_auc_item_average_price(item_id)
+
+            if len(lots) != 0:
+                current_price = [lots[0]['buyoutPrice'], 1]
+                for i in range(1, len(lots)):
+                    if (lots[i]['buyoutPrice'] - lots[0]['buyoutPrice']) / (lots[0]['buyoutPrice'] / 100) < 4.2:
+                        current_price[0] += lots[i]['buyoutPrice']
+                        current_price[1] += 1
+                    elif (lots[1]['buyoutPrice'] - lots[0]['buyoutPrice']) / (lots[0]['buyoutPrice'] / 100) > 9:
+                        #  Если первый лот сликшом дешёвый в сравнение со следующими то они тоже будут учитываться если
+                        #  их разница меньше 3% стоимости
+
+                        if i == 1:
+                            #  Скипаю 2 лот
+                            continue
+
+                        if (lots[i]['buyoutPrice'] - lots[1]['buyoutPrice']) / (lots[1]['buyoutPrice'] / 100) < 3:
+                            current_price[0] += lots[i]['buyoutPrice']
+                            current_price[1] += 1
+                            if i == 2:
+                                current_price[0] += lots[1]['buyoutPrice']
+                                current_price[1] += 1
+                        else:
+                            break
+                    else:
+                        break
+                return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: {'{0:,}'.format(int(current_price[0] / current_price[1]))}"
+            return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: Отсуствует информация"
 
 
 async def cmd_average(message: types.Message):
