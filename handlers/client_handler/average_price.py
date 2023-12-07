@@ -114,7 +114,7 @@ async def get_auction_average_price(item_id) -> str:
                 text += '\n'
                 for n in range(7):
                     if count_items[i][n] != 0:
-                        text += TIER_AVERAGE_PRICE[n].format('{0:,}'.format(int(sum_items[i][n] / count_items[i][n])).replace(',', '.')) if sum_items[i][n] != 0 else ''
+                        text += TIER_AVERAGE_PRICE[n].format('{0:,}'.format(int(sum_items[i][n] / count_items[i][n]))) if sum_items[i][n] != 0 else ''
                         text += '\n'
         return text
     else:
