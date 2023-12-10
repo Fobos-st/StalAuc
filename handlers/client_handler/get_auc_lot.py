@@ -356,7 +356,7 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
     if callback_query.data == "Отмена":
         await state.finish()
         await bot.send_message(callback_query.from_user.id, ":-(")
-    if callback_query.data.split()[1] == 'skip':  #изменить проверку этого условия для скипа(сделать так что другие callback_data пропускает мимо)
+    if callback_query.data.find('skip') == 11:  #изменить проверку этого условия для скипа(сделать так что другие callback_data пропускает мимо)
         return
     last_page, lots = await API_request.get_auc_item(callback_query.data.split())
     if last_page:
