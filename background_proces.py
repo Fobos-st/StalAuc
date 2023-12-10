@@ -94,7 +94,6 @@ async def check_item_rework() -> None:
                 lots = result['lots']
                 for lot in lots:
                     if lot["buyoutPrice"] < user[2]:  # Скип проверки если цена лота больше запроса пользователя
-                        print(lot["buyoutPrice"])
                         if await checking_conditions(user, lot) and (user[0], lot["startTime"], lot["itemId"]) not in spam_message:
                             try:
                                 await bot.send_message(user[0],
