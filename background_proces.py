@@ -143,4 +143,4 @@ async def check_item_rework() -> None:
         print("Конец проверки")
         if sys.getsizeof(spam_message) >= 16777216:
             spam_message = []
-        await asyncio.sleep(60)
+        await asyncio.sleep(45)
