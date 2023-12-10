@@ -25,13 +25,13 @@ def create_table() -> None:
 
 
 async def print_all_users():
-    cursor.execute('SELECT * FROM users')
+    cursor.execute('SELECT * FROM users GROUP BY user_id')
     users = cursor.fetchall()
     return users
 
 
 def get_all_id_users():
-    cursor.execute("SELECT user_id FROM users")
+    cursor.execute("SELECT user_id FROM users GROUP BY user_id")
     result = cursor.fetchall()
     return result
 
@@ -82,7 +82,7 @@ def delete_request(user_id):
 
 def get_count_user():
     try:
-        cursor.execute("SELECT * FROM users")
+        cursor.execute("SELECT * FROM users GROUP BY user_id")
         return f"Количество пользователей: {len(cursor.fetchall())}"
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite \n",

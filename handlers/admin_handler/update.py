@@ -19,14 +19,9 @@ async def send_message_update_all_users(message: types.Message):
     if message.from_user.id == 1254191582:
         data = database.dbsql.get_all_id_users()
         blocked_user = 0
-        list_user = []
         for user in data:
             try:
-                if user[0] not in list_user:
-                    await bot.send_message(user[0], hello_text, reply_markup=main_kb)
-                    list_user.append(user[0])
-                else:
-                    pass
+                await bot.send_message(user[0], hello_text, reply_markup=main_kb)
             except Exception:
                 blocked_user += 1
         await message.answer(f"Пользователи получили сообщение, из них не получили {blocked_user}")
