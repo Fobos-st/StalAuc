@@ -155,7 +155,7 @@ async def get_auction_average_price(item_id) -> str:
                             #  Скипаю 2 лот
                             continue
 
-                        if (lots[i]['buyoutPrice'] - lots[1]['buyoutPrice']) / (lots[1]['buyoutPrice'] / 100) < 3:
+                        if (lots[i]['buyoutPrice'] - lots[1]['buyoutPrice']) / (lots[1]['buyoutPrice'] / 100) < 3.8:
                             current_price[0] += lots[i]['buyoutPrice']
                             current_price[1] += 1
                             if i == 2:
