@@ -82,7 +82,7 @@ def delete_request(user_id):
 
 def get_count_user():
     try:
-        cursor.execute("SELECT * FROM users GROUP BY user_id")
+        cursor.execute("SELECT COUNT(user_id) FROM users GROUP BY user_id")
         return f"Количество пользователей: {len(cursor.fetchall())}"
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite \n",
