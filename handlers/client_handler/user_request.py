@@ -67,12 +67,12 @@ async def reg_request_in_db_one(callback_query: types.CallbackQuery, state: FSMC
         await callback_query.message.delete()
         callback_data = callback_query.data
         await state.update_data(item_name=search_item_name_by_id(callback_data))
-        await bot.send_message(callback_query.from_user.id, 'Замечательно')
+        await bot.send_message(chat_id=callback_query.from_user.id, text='Замечательно')
         await MakeRequestUser.next()
         await state.update_data(item_id=callback_data)
         await MakeRequestUser.next()
-        await bot.send_message(callback_query.from_user.id,
-                               'Напишите цену выкупа предмета, Введите сумму без пробелов и запятых')
+        await bot.send_message(chat_id=callback_query.from_user.id,
+                               text='Напишите цену выкупа предмета, Введите сумму без пробелов и запятых')
 
 
 # @dp.message_handler(content_types=["text"], state=MakeRequestUser.price)
@@ -89,11 +89,8 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
                 'высокой редкости так и выбранной изначально', reply_markup=quality_inline_keyboard)
         else:
             update_sqlite_table(message.from_user.id, data['item_id'], data['price'])
-            await message.answer(f"""
-Предмет внесён в список
-Предмет: {search_item_name_by_id(data['item_id'])}
-Цена: от {data['price']} и меньше
-""",       reply_markup=main_kb)
+            await message.answer(text.appened_user_request.format(search_item_name_by_id(data['item_id']),
+                                                                  data['price']), reply_markup=main_kb)
             await state.finish()
     except ValueError:
         await message.answer('Неправильная форма записи', reply_markup=main_kb)
@@ -103,8 +100,8 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
 async def reg_request_in_db_three(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(quality=callback_query.data)
     await MakeRequestUser.next()
-    await bot.send_message(callback_query.from_user.id,
-                           'Выберите от 0-15 качество артефакта',
+    await bot.send_message(chat_id=callback_query.from_user.id,
+                           text='Выберите от 0-15 качество артефакта',
                            reply_markup=additional_inline_keyboard)
 
 
@@ -113,15 +110,18 @@ async def reg_request_in_db_four(callback_query: types.CallbackQuery, state: FSM
     await state.update_data(additional=callback_query.data)
     data = await state.get_data()
     additional = 'Любая' if data['additional'] == 'All' else f"от {data['additional']} и более"
-    await bot.send_message(callback_query.from_user.id, f"""
-Предмет внесён в список
-Предмет: {search_item_name_by_id(data['item_id'])}
-Цена: от {data['price']} и меньше
-Качество: от '{text.QUALITY[int(data['quality'])]}' и более
-Заточка: {additional}
-""", reply_markup=main_kb)
-    update_sqlite_table(callback_query.from_user.id, data['item_id'], data['price'], data['quality'],
-                        data['additional'])
+    update_sqlite_table(user_id=callback_query.from_user.id,
+                        item=data['item_id'],
+                        price=data['price'],
+                        quality=data['quality'],
+                        additional=data['additional'])
+
+    await bot.send_message(callback_query.from_user.id, text.appened_user_request_artefact.format(
+        search_item_name_by_id(data['item_id']),
+        data['price'],
+        text.QUALITY[int(data['quality'])],
+        additional
+    ), reply_markup=main_kb)
     await state.finish()
 
 
