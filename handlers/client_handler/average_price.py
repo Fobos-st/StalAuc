@@ -41,6 +41,17 @@ async def get_data_item(item_id):
     return data_item
 
 
+async def get_data_item_more_100(url, params):
+    data_item = await make_http_get_request(url, HEADERS_1, params)
+    data_item = json.loads(data_item)
+    try:
+        data_item = data_item['prices']
+    except KeyError:
+        await asyncio.sleep(10)
+        await get_data_item_more_100(url, params)
+    return data_item
+
+
 async def get_auction_average_price(item_id) -> str:
     try:
         item_id = list(item_id.values())[0]
@@ -126,9 +137,7 @@ async def get_auction_average_price(item_id) -> str:
             except AttributeError:
                 url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             params = {"limit": "100", "additional": "true", "offset": f"{a * 100}"}
-            data = await make_http_get_request(url, HEADERS, params)
-            data = json.loads(data)
-            lots = data['prices']  # KeyError: 'lots'
+            lots = await get_data_item_more_100(url, params)
 
             for lot in lots:
                 if await check_time(lot['time']):
