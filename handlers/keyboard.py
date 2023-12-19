@@ -131,7 +131,6 @@ async def get_control_menu(callback: str) -> types.inline_keyboard.InlineKeyboar
                 [types.InlineKeyboardButton(text="Выкуп 🔼", callback_data=f"none {page} {id_item} desc")]
             ]
             ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
-            return ikb
         else:
             auc_table_inline_button = [
                 [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} asc"),
@@ -140,7 +139,7 @@ async def get_control_menu(callback: str) -> types.inline_keyboard.InlineKeyboar
                 [types.InlineKeyboardButton(text="Выкуп 🔼", callback_data=f"none {page} {id_item} desc")]
             ]
             ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
-            return ikb
+        return ikb
     elif callback[3] == 'desc':
         if page == 1:
             auc_table_inline_button = [
@@ -149,7 +148,6 @@ async def get_control_menu(callback: str) -> types.inline_keyboard.InlineKeyboar
                 [types.InlineKeyboardButton(text="Выкуп 🔽", callback_data=f"none {page} {id_item} asc")]
             ]
             ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
-            return ikb
         else:
             auc_table_inline_button = [
                 [types.InlineKeyboardButton(text="◀️", callback_data=f"remove_page {page} {id_item} desc"),
@@ -158,4 +156,4 @@ async def get_control_menu(callback: str) -> types.inline_keyboard.InlineKeyboar
                 [types.InlineKeyboardButton(text="Выкуп 🔽", callback_data=f"none {page} {id_item} asc")]
             ]
             ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
-            return ikb
+        return ikb
