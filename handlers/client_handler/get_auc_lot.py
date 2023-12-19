@@ -120,17 +120,17 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
                     fill=f'#{quality_color[0]}')
 
         if 'stats_random' in lot['additional']:
-            try:
+            if "qlt" in lot["additional"]:
                 draw_text.text(
                     (150, 128 + 99 * iteration),
                     f'{round(artefact_value[lot["additional"]["qlt"]][0] + artefact_value[lot["additional"]["qlt"]][1] * ((lot["additional"]["stats_random"] + 2) / 4), 2)}%',
                     # Добавляем шрифт к изображению
                     font=font,
                     fill=f'#ffffff')
-            except Exception:
+            else:
                 draw_text.text(
                     (150, 128 + 99 * iteration),
-                    f'{round(artefact_value[lot["additional"]["qlt"]][0] + artefact_value[lot["additional"]["qlt"]][1] * ((lot["additional"]["stats_random"] + 2) / 4), 2)}%',
+                    f'{round(artefact_value[0][0] + artefact_value[0][1] * ((lot["additional"]["stats_random"] + 2) / 4), 2)}%',
                     # Добавляем шрифт к изображению
                     font=font,
                     fill=f'#ffffff')
