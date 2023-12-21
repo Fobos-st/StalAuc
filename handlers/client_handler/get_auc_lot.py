@@ -329,14 +329,15 @@ async def cmd_req(callback_query: types.CallbackQuery, state: FSMContext):
         callback_data = callback_query.data
         page = 1
         id_item = callback_data
+
         auc_table_inline_button = [
             [types.InlineKeyboardButton(text=f"Страница: {page}", callback_data="numer_page skip"),
              types.InlineKeyboardButton(text="▶️", callback_data=f"add_page {page} {id_item} desc")],
             [types.InlineKeyboardButton(text="Выкуп 🔽", callback_data=f"none {page} {id_item} asc")]
         ]
         ikb = types.InlineKeyboardMarkup(inline_keyboard=auc_table_inline_button)
-        await state.finish()
         lots = await API_request.get_auc_item_first(id_item)
+
         if len(lots) != 0:
             filename = await create_get_auc_lot_img(lots, id_item, callback_query.from_user.first_name, callback_query.from_user.id)
             with open(filename, 'rb') as file:
@@ -346,7 +347,7 @@ async def cmd_req(callback_query: types.CallbackQuery, state: FSMContext):
         else:
             print(len(lots))
             await bot.send_sticker(callback_query.from_user.id,
-                                   "CAACAgIAAxkBAAEKk1NlNK4RlDHOMdrArzsw3VlfNykj5QACQgEAAladvQpuq-gijfR0hDAE")
+                                   "CAACAgIAAxkBAAEK0RtlYhmgdk2_mHY-_XVPHsL_jqMXPgACTREAArqUMElZa2cwFYqlqDME")
             await bot.send_message(callback_query.from_user.id, 'Предмета нету на аукционе в данный момент',
                                    reply_markup=handlers.keyboard.main_kb)
 
@@ -356,11 +357,17 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
     if callback_query.data == "Отмена":
         await state.finish()
         await bot.send_message(callback_query.from_user.id, ":-(")
-    if callback_query.data.find('skip') == 11:  #изменить проверку этого условия для скипа(сделать так что другие callback_data пропускает мимо)
+
+    if callback_query.data.find('skip') == 11:
         return
+
     last_page, lots = await API_request.get_auc_item(callback_query.data.split())
+    print(callback_query.data.split())
     if last_page:
-        page = int(callback_query.data.split()[1]) + 1
+        if callback_query.data.split()[0] == 'add_page':
+            page = int(callback_query.data.split()[1]) + 1
+        else:
+            page = int(callback_query.data.split()[1])
         id_item = callback_query.data.split()[2]
         if callback_query.data.split()[3] == 'asc':
             auc_table_inline_button = [

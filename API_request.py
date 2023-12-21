@@ -21,11 +21,13 @@ async def get_auc_item(data) -> str:
     :param data: callback данные
     :return: Список выбранных предметов с аукциона
     """
-    page = int(data[1])
+    page = int(data[1]) - 1
     item_id = data[2]
     change = data[0]
     if change == 'remove_page':
-        page -= 2
+        page -= 1
+    elif change == 'add_page':
+        page += 1
 
     querystring_auc = {"limit": "5",
                        "sort": "buyout_price",
@@ -39,9 +41,9 @@ async def get_auc_item(data) -> str:
 
     if change == "add_page":
         page += 1
-        return data['total'] <= page * 5, lots
+        return len(lots) != 5 or data['total'] <= page * 5, lots
     else:
-        return False, lots
+        return len(lots) != 5, lots
 
 
 async def get_auc_item_first(id_item: str) -> str:
