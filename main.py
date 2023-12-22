@@ -4,7 +4,7 @@ import handlers
 from create_bot import create_bot_factory
 from create_bot import dp
 from database import dbsql
-from handlers.admin_handler import content, report, update
+from handlers.admin_handler import content, report, update, result_raffle
 from handlers.client_handler import (feedback, start,
                                      get_auc_lot, user_request,
                                      average_price, price_history_chart,
@@ -23,6 +23,7 @@ handlers.client_handler.registration_in_raffle.register_client_handlers_registra
 handlers.admin_handler.report.register_admin_handler_report(dp)
 handlers.admin_handler.content.register_admin_handler_content(dp)
 handlers.admin_handler.update.register_admin_handler_update(dp)
+handlers.admin_handler.result_raffle.register_admin_handler_result_raffle(dp)
 
 
 if __name__ == '__main__':

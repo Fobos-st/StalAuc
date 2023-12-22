@@ -5,17 +5,17 @@ cursor = db.cursor()
 
 
 reg_in_raffle = """
-Привет! Теперь ты принимаешь участие в розыгрыше на БП. 
+Привет!
+Теперь ты принимаешь участие в розыгрыше на БП. 
 Условия участия просты!
-1)Не блокировать бота до 30 числа, что-бы можно было получить уведомление о выигрыше, и всё!
+1)Не блокировать бота до 30 числа,что-бы можно было получить уведомление о выигрыше, и всё!
+
 Количество участников - {}
 Ваш шанс - {}
 """
 
 reg_in_raffle1 = """
 И вновь привет!
-Надеюсь ты не хотел нагнуть систему
-и принять участие вновь)
 Твои текущие шансы на победу:
 Количество участников - {}
 Ваш шанс - {}
@@ -35,7 +35,8 @@ def create_table() -> None:
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS new_years_gift (
             user_id INT,
-            user_name TEXT
+            user_name TEXT,
+            game_nickname TEXT
         )""")
         db.commit()
 
@@ -47,24 +48,34 @@ def create_table() -> None:
         cursor.execute("SELECT * FROM new_years_gift WHERE user_id = '1254191582'")
         if cursor.fetchone() is None:
             for i in range(5):
-                cursor.execute(f"INSERT INTO new_years_gift (user_id, user_name) VALUES (1254191582, 'Чыхпых(Иронично что я разработчик самого бота)')")
-            db.commit()
+                cursor.execute(f"INSERT INTO new_years_gift (user_id, user_name, game_nickname) VALUES (1254191582, 'Чыхпых(Иронично что я разработчик самого бота)', 'Чыхпых')")
+                db.commit()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite \n",
               error)
 
 
-async def reg_in_sweepstakes(user_id: int, user_name: str) -> str:
-    db = sqlite3.connect('serv.db')
+async def check_user_in_db_raffle(user_id: int) -> bool:
+    cursor.execute(f"SELECT user_id FROM new_years_gift WHERE user_id = {user_id}")
+    if len(cursor.fetchall()) == 0:
+        print(True)
+        return True
+    else:
+        print(False)
+        return False
+
+
+async def reg_in_sweepstakes(user_id: int, user_name: str, game_nickname=None) -> str:
     try:
-        cursor.execute(f"SELECT * FROM new_years_gift WHERE user_id = '{user_id}'")
-        if cursor.fetchone() is None:
-            cursor.execute(f"INSERT INTO new_years_gift (user_id, user_name) VALUES ({user_id}, '{user_name}')")
+        if game_nickname is None:
+            return reg_in_raffle1.format(await get_count_user_raffle(),
+                                         f"{round((1 / await get_count_user_raffle()) * 100, 2)}%")
+        else:
+            cursor.execute(f"INSERT INTO new_years_gift VALUES (?, ?, ?)", (user_id, user_name, game_nickname))
             db.commit()
             return reg_in_raffle.format(await get_count_user_raffle(), f"{round((1 / await get_count_user_raffle()) * 100, 2)}%")
-        else:
-            return reg_in_raffle1.format(await get_count_user_raffle(), f"{round((1 / await get_count_user_raffle()) * 100, 2)}%")
+
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite \n",
               error)
@@ -74,6 +85,12 @@ async def get_count_user_raffle() -> int:
     cursor.execute("SELECT COUNT(user_id) FROM new_years_gift")
     result = cursor.fetchall()
     return result[0][0] - 4
+
+
+async def print_all_raffle_users():
+    cursor.execute('SELECT * FROM new_years_gift')
+    users = cursor.fetchall()
+    return users
 
 
 async def print_all_users():
@@ -92,7 +109,6 @@ def reg(user_id: int) -> None:
     db = sqlite3.connect('serv.db')
     try:
         cursor.execute(f"SELECT * FROM users WHERE user_id = '{user_id}'")
-        print(cursor.fetchone())
         if cursor.fetchone() is None:
             cursor.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?)", (user_id, 'None', 'None', 'None', 'None'))
             db.commit()
