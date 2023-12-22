@@ -92,7 +92,8 @@ additional_features = {
 "REACTION_TO_TEAR": "Реакция.разрыв",
 "RADIATION_DAMAGE_PROTECTION": "Защита от рады",
 "PSYCHO_DAMAGE_PROTECTION": "Защита от пси",
-"BIOLOGICAL_DAMAGE_PROTECTION" : "Защита от био"
+"BIOLOGICAL_DAMAGE_PROTECTION" : "Защита от био",
+"TEAR_DMG" : "+Защита от разрыва"
 }
 
 WELCOME_TEXT = """
