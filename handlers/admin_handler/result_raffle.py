@@ -22,8 +22,7 @@ async def ruffle_winner_test() -> str:
 
 winner_text = """
 Привет! Поздравляю тебя с выйграшем БП!
-В ближайшие время постараюсь кинуть его тебе на куру,
-надеюсь ник введёный тобой был верным.
+В ближайшие время постараюсь кинуть его тебе на куру, надеюсь ник введёный тобой был верным.
 Если есть вопросы то пиши мне через -> /ticket
 """
 
@@ -33,7 +32,7 @@ result_raffle_text = ("""
 
 Давайте подведём итоги розыгрыша.
 В участие приняло {} и среди них лишь 1 победитель.
-И им стал {}
+И им стал "{}"
 Подарок уже отправляется победителю 
 
 Всем большое спасибо за участие,
@@ -46,10 +45,11 @@ async def send_result_ruffle_all_users(message: types.Message):
     if message.from_user.id == 1254191582:
         data = database.dbsql.get_all_id_users()
         blocked_user = 0
+        winner = await ruffle_winner()
         for user in data:
             try:
                 await bot.send_message(user[0], result_raffle_text.format(await database.dbsql.get_count_user_raffle(),
-                                                                          await ruffle_winner()), reply_markup=main_kb)
+                                                                          winner), reply_markup=main_kb)
             except Exception as lox:
                 print(lox)
                 blocked_user += 1
@@ -59,7 +59,7 @@ async def send_result_ruffle_all_users(message: types.Message):
 async def send_result_ruffle_for_me(message: types.Message):
     if message.from_user.id == 1254191582:
         await bot.send_message(1254191582, result_raffle_text.format(await database.dbsql.get_count_user_raffle(),
-                                                                  await ruffle_winner_test()), reply_markup=main_kb)
+                                                                     await ruffle_winner_test()), reply_markup=main_kb)
 
 
 def register_admin_handler_result_raffle(dp: Dispatcher):
