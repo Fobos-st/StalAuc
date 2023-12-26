@@ -59,10 +59,8 @@ def create_table() -> None:
 async def check_user_in_db_raffle(user_id: int) -> bool:
     cursor.execute(f"SELECT user_id FROM new_years_gift WHERE user_id = {user_id}")
     if len(cursor.fetchall()) == 0:
-        print(True)
         return True
     else:
-        print(False)
         return False
 
 
