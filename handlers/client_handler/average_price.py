@@ -11,7 +11,7 @@ import database.dbitem
 import handlers.keyboard
 from text import *
 from API_request import make_http_get_request
-from config import HEADERS, URL_GET_HISTORY_AUC_LOTS, HEADERS_1, PARAMS_CHECK
+from config import URL_GET_HISTORY_AUC_LOTS, PARAMS_CHECK, get_headers
 from create_bot import bot
 from ..keyboard import cancel_inline_keyboard, main_kb
 
@@ -31,7 +31,7 @@ async def check_time(time: str) -> bool:
 
 
 async def get_data_item(item_id):
-    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK)
+    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), get_headers(), PARAMS_CHECK)
     data_item = json.loads(data_item)
     try:
         data_item = data_item['prices']
@@ -42,7 +42,7 @@ async def get_data_item(item_id):
 
 
 async def get_data_item_more_100(url, params):
-    data_item = await make_http_get_request(url, HEADERS_1, params)
+    data_item = await make_http_get_request(url, get_headers(), params)
     data_item = json.loads(data_item)
     try:
         data_item = data_item['prices']

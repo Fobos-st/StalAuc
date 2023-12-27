@@ -1,6 +1,6 @@
 import json
 import aiohttp
-from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, first_querystring, get_lot_average_price
+from config import URL_GET_ACTIVE_AUC_LOTS, first_querystring, get_lot_average_price, get_headers
 
 
 async def make_http_get_request(url: str, head: str, params: str):
@@ -35,7 +35,7 @@ async def get_auc_item(data) -> str:
                        "order": f"{data[3]}",
                        "additional": "true"}
 
-    data = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(item_id), HEADERS, params=querystring_auc)
+    data = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(item_id), get_headers(), params=querystring_auc)
     data = json.loads(data)
     lots = data["lots"]
 
@@ -52,7 +52,7 @@ async def get_auc_item_first(id_item: str) -> str:
     :return: Список выбранных предметов с аукциона
     """
     url = f"https://eapi.stalcraft.net/ru/auction/{id_item}/lots"
-    data = await make_http_get_request(url, HEADERS, params=first_querystring)
+    data = await make_http_get_request(url, get_headers(), params=first_querystring)
     data = json.loads(data)
     try:
         lots = data["lots"]
@@ -67,7 +67,7 @@ async def get_auc_item_average_price(id_item: str) -> str:
     :return: Список выбранных предметов с аукциона
     """
     url = f"https://eapi.stalcraft.net/ru/auction/{id_item}/lots"
-    data = await make_http_get_request(url, HEADERS, params=get_lot_average_price)
+    data = await make_http_get_request(url, get_headers(), params=get_lot_average_price)
     data = json.loads(data)
     try:
         lots = data["lots"]

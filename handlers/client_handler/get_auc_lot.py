@@ -362,7 +362,6 @@ async def changing_the_list_of_lots(callback_query: types.CallbackQuery, state: 
         return
 
     last_page, lots = await API_request.get_auc_item(callback_query.data.split())
-    print(callback_query.data.split())
     if last_page:
         if callback_query.data.split()[0] == 'add_page':
             page = int(callback_query.data.split()[1]) + 1

@@ -8,7 +8,7 @@ from aiogram.utils.exceptions import ChatNotFound, UserDeactivated, BotBlocked
 
 from API_request import make_http_get_request
 from config import BOT_TOKEN
-from config import HEADERS, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK_any_time, PARAMS_CHECK_MORE_200_LOTS
+from config import get_headers, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK_any_time
 from database import dbitem
 from database.dbsql import print_all_users
 from text import notification_text
@@ -19,7 +19,7 @@ bot = Bot(BOT_TOKEN)
 
 async def get_lots_item(item_id, user):
     result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
-                                         head=HEADERS,
+                                         head=get_headers(),
                                          params=PARAMS_CHECK_any_time)
     data_item = json.loads(result)
     try:
@@ -34,7 +34,7 @@ async def get_lots_item_more_200(item_id, user, iteration):
     PARAMS_CHECKED = {"limit": "200", "sort": "buyout_price", "additional": "true",
                       "offset": f"{str(iteration * 200)}", "order": "asc"}
     result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
-                                         head=HEADERS,
+                                         head=get_headers(),
                                          params=PARAMS_CHECKED)
     data_item = json.loads(result)
     try:

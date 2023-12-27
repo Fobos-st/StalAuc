@@ -23,7 +23,7 @@ import database.dbitem
 import handlers.keyboard
 import text
 from API_request import make_http_get_request
-from config import URL_GET_HISTORY_AUC_LOTS, HEADERS_1, HEADERS_2
+from config import URL_GET_HISTORY_AUC_LOTS, get_headers
 from create_bot import bot
 from ..keyboard import cancel_inline_keyboard
 from aiogram.types import ChatActions
@@ -50,16 +50,8 @@ PARAMS_CHECK = {"limit": "200", "sort": "buyout_price", "additional": "true"}
 
 
 async def get_data_item(item_id):
-    global HEADERS_LIST
-    if HEADERS_LIST:
-        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK)
-        data_item = json.loads(data_item)
-        HEADERS_LIST = False
-    else:
-        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_2, PARAMS_CHECK)
-        data_item = json.loads(data_item)
-        HEADERS_LIST = True
-
+    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), get_headers(), PARAMS_CHECK)
+    data_item = json.loads(data_item)
     try:
         data_item = data_item['prices']
     except KeyError:
@@ -69,24 +61,15 @@ async def get_data_item(item_id):
 
 
 async def get_data_item_more_200(item_id, iteration):
-    PARAMS_CHECK_MORE_200 = {"limit": "200", "sort": "buyout_price", "additional": "true",
+    params_check_more_200 = {"limit": "200", "sort": "buyout_price", "additional": "true",
                       "offset": f"{str(iteration * 200)}"}
-    global HEADERS_LIST
-    if HEADERS_LIST:
-        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_1, PARAMS_CHECK_MORE_200)
-        data_item = json.loads(data_item)
-        HEADERS_LIST = False
-    else:
-        data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), HEADERS_2, PARAMS_CHECK_MORE_200)
-        data_item = json.loads(data_item)
-        HEADERS_LIST = True
-
+    data_item = await make_http_get_request(URL_GET_HISTORY_AUC_LOTS.format(item_id), get_headers(), params_check_more_200)
+    data_item = json.loads(data_item)
     try:
         data_item = data_item['prices']
-        return data_item
     except KeyError:
         await asyncio.sleep(10)
-        await get_data_item(item_id)
+        await get_data_item_more_200(item_id, iteration)
     return data_item
 
 
