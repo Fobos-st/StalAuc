@@ -93,7 +93,8 @@ additional_features = {
 "RADIATION_DAMAGE_PROTECTION": "Защита от рады",
 "PSYCHO_DAMAGE_PROTECTION": "Защита от пси",
 "BIOLOGICAL_DAMAGE_PROTECTION" : "Защита от био",
-"TEAR_DMG" : "+Защита от разрыва"
+"TEAR_DMG" : "+Защита от разрыва",
+"REACTION_TO_CHEMICAL_BURN": " Реакция хим.ожог"
 }
 
 WELCOME_TEXT = """
