@@ -19,11 +19,11 @@ handlers.client_handler.get_auc_lot.register_client_handlers_get_auc_lot(dp)
 handlers.client_handler.user_request.register_client_handlers_user_request(dp)
 handlers.client_handler.average_price.register_client_handlers_average_price(dp)
 handlers.client_handler.price_history_chart.register_client_handlers_price_history_chart(dp)
-handlers.client_handler.registration_in_raffle.register_client_handlers_registration_in_raffle(dp)
+# handlers.client_handler.registration_in_raffle.register_client_handlers_registration_in_raffle(dp) (Убрал)
 handlers.admin_handler.report.register_admin_handler_report(dp)
 handlers.admin_handler.content.register_admin_handler_content(dp)
 handlers.admin_handler.update.register_admin_handler_update(dp)
-handlers.admin_handler.result_raffle.register_admin_handler_result_raffle(dp)
+# handlers.admin_handler.result_raffle.register_admin_handler_result_raffle(dp) (Убрал)
 
 
 if __name__ == '__main__':
