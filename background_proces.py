@@ -7,8 +7,7 @@ from aiogram import Bot
 from aiogram.utils.exceptions import ChatNotFound, UserDeactivated, BotBlocked
 
 from API_request import make_http_get_request
-from config import BOT_TOKEN
-from config import get_headers, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK_any_time
+from config import get_headers, URL_GET_ACTIVE_AUC_LOTS, PARAMS_CHECK_ANY_TIME, BOT_TOKEN
 from database import dbitem
 from database.dbsql import print_all_users
 from text import notification_text
@@ -20,7 +19,7 @@ bot = Bot(BOT_TOKEN)
 async def get_lots_item(item_id, user):
     result = await make_http_get_request(URL_GET_ACTIVE_AUC_LOTS.format(user[1]),
                                          head=get_headers(),
-                                         params=PARAMS_CHECK_any_time)
+                                         params=PARAMS_CHECK_ANY_TIME)
     data_item = json.loads(result)
     try:
         if 'lots' in data_item:
