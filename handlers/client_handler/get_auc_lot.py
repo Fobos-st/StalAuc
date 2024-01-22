@@ -11,6 +11,7 @@ from text import artefact_value
 from create_bot import bot, dp
 from ..keyboard import cancel_inline_keyboard, get_control_menu
 from PIL import Image, ImageDraw, ImageFont
+import re
 import os
 
 
@@ -58,6 +59,7 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
     font1 = ImageFont.truetype("database/Roboto-Medium.ttf", size=21)
     iteration = 0
     item_name = database.dbitem.search_item_name_by_id(id_item)
+    item_name = re.sub(r'^(.{17}).*$', '\g<1>...', item_name)
     artefact = database.dbitem.is_it_artifact(id_item)
     for lot in lots:
         im1.paste(im2, (45, 95 + 99 * iteration), mask=im2)
@@ -162,8 +164,8 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
             font=font,
             fill='#DBDBDB')
         draw_text.text(
-            (570, 128 + 99 * iteration),
-            '{0:,}'.format(int(lot["buyoutPrice"])).replace(',', '.'),
+            (570 if lot["buyoutPrice"] != 0 else 608, 128 + 99 * iteration),
+            '{0:,}'.format(int(lot["buyoutPrice"])).replace(',', '.') if lot["buyoutPrice"] != 0 else '-',
             # Добавляем шрифт к изображению
             font=font,
             fill='#DBDBDB')
@@ -261,6 +263,18 @@ async def create_get_auc_lot_img(lots: dict, id_item: str, username: str, user_i
                     'Отсутствуют',
                     font=font1,
                     fill='#DBDBDB')
+        elif lot['amount'] > 1:
+            draw_text.text(
+                (750, 110 + 99 * iteration),
+                f'Количество:{lot["amount"]}',
+                font=font1,
+                fill='#DBDBDB')
+            draw_text.text(
+                (750, 140 + 99 * iteration),
+                f'Цена за шт:{round(lot["buyoutPrice"] / lot["amount"])}',
+                font=font1,
+                fill='#DBDBDB')
+
 
         iteration += 1
 
