@@ -15,17 +15,17 @@ HEADERS_2 = {
 HEADERS_LIST = [HEADERS, HEADERS_1, HEADERS_2]
 number_headers_list = 0
 
-BOT_TOKEN = '6290427125:AAHHO49ChtAcCWY6pwHh8zn5rI2Lil8AtA4'  # '6693090153:AAFDYxMkhCam88m6zp-TgHQur93AuooI5YQ'
+BOT_TOKEN = '6290427125:AAHHO49ChtAcCWY6pwHh8zn5rI2Lil8AtA4'  #'6693090153:AAFDYxMkhCam88m6zp-TgHQur93AuooI5YQ'
 
 URL_GET_ACTIVE_AUC_LOTS = "https://eapi.stalcraft.net/ru/auction/{}/lots"
 URL_GET_HISTORY_AUC_LOTS = "https://eapi.stalcraft.net/ru/auction/{}/history"
 
 PARAMS_CHECK = {"limit": "200", "sort": "buyout_price", "additional": "true"}
-PARAMS_CHECK_any_time = {"limit": "200", "sort": "buyout_price", "additional": "true", "order": "asc"}
+PARAMS_CHECK_ANY_TIME = {"limit": "200", "sort": "buyout_price", "additional": "true", "order": "asc"}
 PARAMS_CHECK_MORE_200_LOTS = {"limit": "200", "sort": "buyout_price", "additional": "true", "offset": "200"}
 
 first_querystring = {"limit": "5", "sort": "buyout_price", "additional": "true", "order": "desc"}
-get_lot_average_price = {"limit": "5", "sort": "buyout_price", "additional": "true", "order": "asc"}
+get_lot_average_price = {"limit": "10", "sort": "buyout_price", "additional": "true", "order": "asc"}
 
 
 def get_headers() -> dict:
@@ -33,5 +33,4 @@ def get_headers() -> dict:
     global number_headers_list
     get_current_headers = HEADERS_LIST[number_headers_list]
     number_headers_list = (number_headers_list + 1) % 3
-    print(number_headers_list)
     return get_current_headers
