@@ -156,7 +156,6 @@ async def get_auction_average_price(item_id) -> str:
                     counter += 1
                 current_price = [lots[counter]['buyoutPrice'], 1]
                 for i in range(counter + 1, len(lots)):
-                    print((lots[i]['buyoutPrice'] - lots[counter]['buyoutPrice']) / (lots[counter]['buyoutPrice'] / 100))
                     if ((lots[i]['buyoutPrice'] - lots[counter]['buyoutPrice']) / (lots[counter]['buyoutPrice'] / 100)) < 4.2:
                         current_price[0] += lots[i]['buyoutPrice']
                         current_price[1] += 1
