@@ -133,6 +133,7 @@ async def get_auction_average_price(item_id) -> str:
     else:
         sum_items = 0
         count_items = 0
+        stoper = False
         for a in range(max_iteration):
             try:
                 url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
@@ -146,8 +147,11 @@ async def get_auction_average_price(item_id) -> str:
                     count_items += lot['amount']
                     sum_items += lot['price']
                 else:
+                    stoper = True
                     print('пиздык')
                     break
+            if stoper:
+                break
             if count_items == 0:
                 return "Небыло продаж за последние 7 дней"
 
