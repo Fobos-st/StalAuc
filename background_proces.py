@@ -139,6 +139,6 @@ async def check_item_rework() -> None:
                 except Exception:
                     await bot.send_message(1254191582, f'{ex} \n {user}')
         print("Конец проверки")
-        if sys.getsizeof(spam_message) >= 16777216:
+        if sys.getsizeof(spam_message) >= 1048576:
             spam_message = []
         await asyncio.sleep(45)
