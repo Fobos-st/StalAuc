@@ -64,7 +64,9 @@ async def get_auction_average_price(item_id) -> str:
         count_items = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
         for a in range(max_iteration):
-            lots = await get_data_item(item_id)
+            params = {"limit": "100", "additional": "true", "offset": f"{a * 100}"}
+            url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
+            lots = await get_data_item_more_100(url, params)
             for lot in lots:
                 if await check_time(lot['time']):
 
@@ -144,41 +146,41 @@ async def get_auction_average_price(item_id) -> str:
                     count_items += lot['amount']
                     sum_items += lot['price']
                 else:
+                    print('пиздык')
                     break
             if count_items == 0:
                 return "Небыло продаж за последние 7 дней"
 
-            lots = await API_request.get_auc_item_average_price(item_id)
+        lots = await API_request.get_auc_item_average_price(item_id)
+        if len(lots) != 0:
+            counter = 0
+            while lots[counter]['buyoutPrice'] == 0:  # скип лотов без цены выкупа
+                counter += 1
+            current_price = [lots[counter]['buyoutPrice'], 1]
+            for i in range(counter + 1, len(lots)):
+                if ((lots[i]['buyoutPrice'] - lots[counter]['buyoutPrice']) / (lots[counter]['buyoutPrice'] / 100)) < 4.2:
+                    current_price[0] += lots[i]['buyoutPrice']
+                    current_price[1] += 1
+                elif ((lots[counter + 1]['buyoutPrice'] - lots[counter]['buyoutPrice']) / (lots[counter]['buyoutPrice'] / 100)) > 9:
+                    #  Если первый лот сликшом дешёвый в сравнение со следующими то они тоже будут учитываться если
+                    #  их разница меньше 3% стоимости
 
-            if len(lots) != 0:
-                counter = 0
-                while lots[counter]['buyoutPrice'] == 0:  # скип лотов без цены выкупа
-                    counter += 1
-                current_price = [lots[counter]['buyoutPrice'], 1]
-                for i in range(counter + 1, len(lots)):
-                    if ((lots[i]['buyoutPrice'] - lots[counter]['buyoutPrice']) / (lots[counter]['buyoutPrice'] / 100)) < 4.2:
+                    if i == counter + 1:
+                        #  Скипаю 2 лот
+                        continue
+
+                    if ((lots[i]['buyoutPrice'] - lots[1]['buyoutPrice']) / (lots[1]['buyoutPrice'] / 100)) < 3.8:
                         current_price[0] += lots[i]['buyoutPrice']
                         current_price[1] += 1
-                    elif ((lots[counter + 1]['buyoutPrice'] - lots[counter]['buyoutPrice']) / (lots[counter]['buyoutPrice'] / 100)) > 9:
-                        #  Если первый лот сликшом дешёвый в сравнение со следующими то они тоже будут учитываться если
-                        #  их разница меньше 3% стоимости
-
-                        if i == counter + 1:
-                            #  Скипаю 2 лот
-                            continue
-
-                        if ((lots[i]['buyoutPrice'] - lots[1]['buyoutPrice']) / (lots[1]['buyoutPrice'] / 100)) < 3.8:
-                            current_price[0] += lots[i]['buyoutPrice']
+                        if i == 2:
+                            current_price[0] += lots[1]['buyoutPrice']
                             current_price[1] += 1
-                            if i == 2:
-                                current_price[0] += lots[1]['buyoutPrice']
-                                current_price[1] += 1
-                        else:
-                            break
                     else:
                         break
-                return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: {'{0:,}'.format(int(current_price[0] / current_price[1]))}"
-            return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: Отсуствует информация"
+                else:
+                    break
+            return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nКоличество проджа:{count_items}\nАктуальная цена на аукционе: {'{0:,}'.format(int(current_price[0] / current_price[1]))}"
+        return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: Отсуствует информация"
 
 
 async def cmd_average(message: types.Message):
