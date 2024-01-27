@@ -160,7 +160,7 @@ async def check_item_rework() -> None:
                 spam_message = []
             for i in range(len(spam_message)):
                 if remaining_time(spam_message[i][1]):
-                    spam_message.pop(i)
+                    spam_message.remove(spam_message[i])
 
             await asyncio.sleep(35)
 
