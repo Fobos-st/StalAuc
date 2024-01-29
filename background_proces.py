@@ -156,14 +156,16 @@ async def check_item_rework() -> None:
                                             pass
                             iteration += 1
 
-            if sys.getsizeof(spam_message) >= 1048576:
-                spam_message = []
+            counter = 0
             for i in range(len(spam_message)):
                 if remaining_time(spam_message[i][1]):
-                    spam_message.remove(spam_message[i])
+                    spam_message.remove(spam_message[i - counter])
+                    counter += 1
 
-            await asyncio.sleep(35)
-
+            await asyncio.sleep(30)
         except Exception:
-            await bot.send_message(1254191582, PrintException())
-            continue
+            try:
+                await bot.send_message(1254191582, PrintException())
+                continue
+            except Exception:
+                ...
