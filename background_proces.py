@@ -113,6 +113,7 @@ async def check_item_rework() -> None:
                         continue
                     result = await get_lots_item(user[1], user)
                     lots = result['lots']
+                    counter_message = 0
                     for lot in lots:
                         if lot["buyoutPrice"] < user[2]:  # Скип проверки если цена лота больше запроса пользователя
                             if await checking_conditions(user, lot) and [user[0], lot["endTime"], lot["itemId"]] not in spam_message:
@@ -122,6 +123,9 @@ async def check_item_rework() -> None:
                                                            '{0:,}'.format(lot["buyoutPrice"])),
                                                            reply_markup=main_kb)
                                     spam_message.append([user[0], lot["endTime"], lot["itemId"]])
+                                    counter_message += 1
+                                    if counter_message > 15:
+                                        break
                                     continue
                                 except ChatNotFound:
                                     pass
