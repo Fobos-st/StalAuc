@@ -18,7 +18,7 @@ from handlers.keyboard import main_kb
 bot = Bot(BOT_TOKEN)
 
 
-def PrintException():
+def print_exception():
     exc_type, exc_obj, tb = sys.exc_info()
     f = tb.tb_frame
     lineno = tb.tb_lineno
@@ -162,14 +162,14 @@ async def check_item_rework() -> None:
 
             counter = 0
             for i in range(len(spam_message)):
-                if remaining_time(spam_message[i][1]):
+                if remaining_time(spam_message[i - counter][1]):
                     spam_message.remove(spam_message[i - counter])
                     counter += 1
 
             await asyncio.sleep(30)
         except Exception:
             try:
-                await bot.send_message(1254191582, PrintException())
+                await bot.send_message(1254191582, print_exception())
                 continue
             except Exception:
                 ...
