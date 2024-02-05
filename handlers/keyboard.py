@@ -26,8 +26,8 @@ quality_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=quality_inl
 
 
 auction_choice_button = [
-    [types.InlineKeyboardButton(text='Проверка цены', callback_data='auction_check_price')],
-    [types.InlineKeyboardButton(text='Графики цены', callback_data='auction_chart_price')],
+    [types.InlineKeyboardButton(text='Проверка цены', callback_data='auction_check_price'),
+     types.InlineKeyboardButton(text='Графики цены', callback_data='auction_chart_price')],
     [types.InlineKeyboardButton(text='Средняя цена', callback_data='auction_average_price')],
 ]
 auction_choice_keyboard = types.InlineKeyboardMarkup(inline_keyboard=auction_choice_button)
