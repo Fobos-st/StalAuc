@@ -1,5 +1,4 @@
 from aiogram import types
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 main_button = [
     [types.KeyboardButton(text="Аукцион"),
@@ -19,6 +18,16 @@ quality_inline_button = [
     [types.InlineKeyboardButton(text='Легендарный', callback_data='5')],
 ]
 quality_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+
+
+choice_count_days_button = [
+    [types.InlineKeyboardButton(text='1 день', callback_data='day1')],
+    [types.InlineKeyboardButton(text='3 дня', callback_data='day3')],
+    [types.InlineKeyboardButton(text='7 дней', callback_data='day7')],
+    [types.InlineKeyboardButton(text='14 дней', callback_data='day14')],
+    [types.InlineKeyboardButton(text='21 день', callback_data='day21')]
+]
+choice_count_days_keyboard = types.InlineKeyboardMarkup(inline_keyboard=choice_count_days_button)
 
 
 auction_choice_button = [
@@ -69,10 +78,10 @@ cancel_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=cancel_butto
 
 
 async def get_keyboard_item(choices):
-    kb = InlineKeyboardMarkup(resize_keyboard=True)
+    kb = types.InlineKeyboardMarkup(resize_keyboard=True)
     for choice in choices.keys():
         kb.add(
-            InlineKeyboardButton(choice, callback_data=f'{choices.get(choice)}'),
+            types.InlineKeyboardButton(choice, callback_data=f'{choices.get(choice)}'),
         )
     kb.add(types.InlineKeyboardButton(text='Отмена❌', callback_data='Отмена'))
     return kb

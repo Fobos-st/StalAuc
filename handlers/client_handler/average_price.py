@@ -1,30 +1,36 @@
 import asyncio
 import json
 from datetime import datetime, timedelta
-from aiogram.dispatcher.filters.state import State, StatesGroup
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ChatActions
 
 import API_request
-from aiogram.types import ChatActions
 import database.dbitem
 import handlers.keyboard
-from text import *
 from API_request import make_http_get_request
 from config import URL_GET_HISTORY_AUC_LOTS, PARAMS_CHECK, get_headers
 from create_bot import bot
-from ..keyboard import cancel_inline_keyboard, main_kb
+from text import (get_and_average_price_artifact,
+                  average_price_artifact_start,
+                  QUALITY_AVERAGE_PRICE,
+                  TIER_AVERAGE_PRICE,
+                  input_item_name_messeage)
+from ..keyboard import cancel_inline_keyboard, main_kb, choice_count_days_keyboard
 
 
 class ItemName(StatesGroup):
     text = State()
+    CountDays = State()
 
 
-async def check_time(time: str) -> bool:
+async def check_time(time: str, day: int) -> bool:
     now = datetime.utcnow()  # Получение текущего времени
     time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")  # Преобразование строки времени в объект datetime
     diff = now - time  # Вычисление разницы между текущим временем и заданным временем
-    if diff <= timedelta(days=7):  # Проверка, что разница не превышает 1 неделю (7 дней)
+    if diff <= timedelta(days=day):  # Проверка, что разница не превышает 1 неделю (7 дней)
         return True
     else:
         return False
@@ -52,12 +58,12 @@ async def get_data_item_more_100(url, params):
     return data_item
 
 
-async def get_auction_average_price(item_id) -> str:
+async def get_auction_average_price(item_id, count_day) -> str:
     try:
         item_id = list(item_id.values())[0]
     except AttributeError:
         ...
-    max_iteration = 5
+    max_iteration = count_day * 10
     if database.dbitem.is_it_artifact(item_id):
         sum_items = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
                      [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
@@ -68,9 +74,9 @@ async def get_auction_average_price(item_id) -> str:
             url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             lots = await get_data_item_more_100(url, params)
             for lot in lots:
-                if await check_time(lot['time']):
+                if await check_time(lot['time'], count_day):
 
-                    if 'stats_random' not in lot['additional']:  # Если неизученный
+                    if 'stats_random' not in lot['additional'] and 'ptn' not in lot['additional']:  # Если неизученный
                         try:
                             count_items[lot['additional']['qlt']][0] += lot['amount']
                             sum_items[lot['additional']['qlt']][0] += lot['price']
@@ -78,7 +84,7 @@ async def get_auction_average_price(item_id) -> str:
                             count_items[0][0] += lot['amount']
                             sum_items[0][0] += lot['price']
 
-                    elif 'stats_random' in lot['additional'] and 'qlt' not in lot['additional']:  # Если у обычного нету пункта qlt
+                    elif 'qlt' not in lot['additional']:  # Если у обычного нету пункта qlt
                         if 'ptn' not in lot['additional'] or 1 >= lot['additional']['ptn'] <= 4:  # С 0 по 4 тир
                             count_items[0][1] += lot['amount']
                             sum_items[0][1] += lot['price']
@@ -98,7 +104,7 @@ async def get_auction_average_price(item_id) -> str:
                             count_items[0][6] += lot['amount']
                             sum_items[0][6] += lot['price']
 
-                    elif 'stats_random' in lot['additional']:  # Если изученный
+                    else:  # Если изученный
                         if 'ptn' not in lot['additional'] or 1 >= lot['additional']['ptn'] <= 4:  # С 0 по 4 тир
                             count_items[lot['additional']['qlt']][1] += lot['amount']
                             sum_items[lot['additional']['qlt']][1] += lot['price']
@@ -120,7 +126,7 @@ async def get_auction_average_price(item_id) -> str:
 
                 else:
                     break
-        text = average_price_artifact_start
+        text = average_price_artifact_start.format(count_day, get_and_average_price_artifact[str(count_day)[-1]])
         for i in range(6):
             if sum(count_items[i]) != 0:
                 text += QUALITY_AVERAGE_PRICE[i]
@@ -143,7 +149,7 @@ async def get_auction_average_price(item_id) -> str:
             lots = await get_data_item_more_100(url, params)
 
             for lot in lots:
-                if await check_time(lot['time']):
+                if await check_time(lot['time'], count_day):
                     count_items += lot['amount']
                     sum_items += lot['price']
                 else:
@@ -183,8 +189,8 @@ async def get_auction_average_price(item_id) -> str:
                         break
                 else:
                     break
-            return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nКоличество проджа:{count_items}\nАктуальная цена на аукционе: {'{0:,}'.format(int(current_price[0] / current_price[1]))}"
-        return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: Отсуствует информация"
+            return f"Средняя цена за '{count_day}' {get_and_average_price_artifact[count_day % 10]}: {'{0:,}'.format(int(sum_items / count_items))} \nКоличество продаж:{count_items}\nАктуальная цена на аукционе: {'{0:,}'.format(int(current_price[0] / current_price[1]))}"
+        return f"Средняя цена за '{count_day}' {get_and_average_price_artifact[count_day % 10]}: {'{0:,}'.format(int(sum_items / count_items))} \nКоличество продаж:{count_items} \nАктуальная цена на аукционе: Отсуствует информация"
 
 
 async def cmd_average(callback_query: types.CallbackQuery):
@@ -201,31 +207,36 @@ async def get_name(message: types.Message, state: FSMContext):
         kb = await handlers.keyboard.get_keyboard_item(id_item)
         await message.reply('Нашёл несколько вариантов, выберете ниже', reply_markup=kb)
     elif len(id_item) == 1:
-        msg1 = await message.answer('Собираю информацию')
-        await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
-        text_msg = await get_auction_average_price(id_item)
-        await state.finish()
-        await bot.send_message(message.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
-        await msg1.delete()
+        callback_data = list(id_item.values())[0]
+        await state.update_data(text=callback_data)
+        await ItemName.next()
+        await message.answer("За какой срок времени вывести информацию", reply_markup=choice_count_days_keyboard)
     else:
         await message.answer('Такого предмета нету в нашем списке, а может быть Зив его куда-то унёс во время Зимней вечеринки с пивом!🍻',
                              reply_markup=main_kb)
         await state.finish()
 
 
-async def selection_item(callback_query: types.CallbackQuery, state: FSMContext):
-    if callback_query.data == "Отмена":
-        await state.finish()
-        await callback_query.message.delete()
-        await bot.send_message(callback_query.from_user.id, "(", reply_markup=handlers.keyboard.main_kb)
-    else:
-        await state.finish()
-        await callback_query.message.delete()
-        text_msg = await get_auction_average_price(callback_query.data)
-        await bot.send_message(callback_query.from_user.id, text_msg, reply_markup=handlers.keyboard.main_kb)
+async def get_count_days(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
+    await state.update_data(text=callback_query.data)
+    await ItemName.next()
+    await bot.send_message(callback_query.from_user.id, "За какой срок времени вывести информацию",
+                           reply_markup=choice_count_days_keyboard)
+
+
+async def send_average_price(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
+    await state.update_data(CountDays=callback_query.data)
+    data = await state.get_data()
+    await bot.send_chat_action(callback_query.from_user.id, ChatActions.TYPING)
+    text_msg = await get_auction_average_price(data["text"], int(data["CountDays"][3:]))
+    await state.finish()
+    await bot.send_message(callback_query.from_user.id, text_msg)
 
 
 def register_client_handlers_average_price(dp: Dispatcher):
     dp.register_callback_query_handler(cmd_average, text='auction_average_price')
-    dp.register_message_handler(get_name, state=ItemName.text)
-    dp.register_callback_query_handler(selection_item, state=ItemName.text)
+    dp.register_message_handler(get_name, content_types=["text"], state=ItemName.text)
+    dp.register_callback_query_handler(get_count_days, state=ItemName.text)
+    dp.register_callback_query_handler(send_average_price, state=ItemName.CountDays)

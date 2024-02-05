@@ -79,8 +79,15 @@ artefact_value = {
 }
 
 average_price_artifact_start = """
-Средняя цена за последние 7 дней
+Средняя цена за '{}' {}
 """
+
+get_and_average_price_artifact = {
+    1: 'день',
+    3: 'дня',
+    7: 'дней',
+    4: 'дней'
+}
 
 additional_features = {
     "RADIATION_ACC": "-Радиация",
