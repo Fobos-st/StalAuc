@@ -50,7 +50,7 @@ def current_request(user_id: int) -> str:
         return text_get_curent_lot_artefact.format(
             search_item_name_by_id(data[1]),
             data[2],
-            QUALITY[data[3]],
+            QUALITY[int(data[3])],
             "Любая" if data[4] == "All" else data[4])
     else:
         return text_get_curent_lot_artefact.format(
