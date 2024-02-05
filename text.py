@@ -1,6 +1,5 @@
 from database.dbsql import get_request_user
-from database.dbitem import search_item_name_by_id
-
+from database.dbitem import search_item_name_by_id, is_it_artifact
 
 text_auc_lot = """
 Количество: {}
@@ -27,25 +26,37 @@ TIER_AVERAGE_PRICE = [
     "    15 тир: {}"
 ]
 
-
 input_item_name_messeage = 'Введите название предмета, соблюдая язык и правильно название(не обязательно писать полное)'
+
+text_get_curent_lot_artefact = """
+Предмет: {}
+Цена: от {} и меньше
+Качество: от '{}' и более
+Заточка: {}
+"""
+
+text_get_curent_lot = """
+Текущий запрос:
+предмет: {}
+цена: {}
+"""
 
 
 def current_request(user_id: int) -> str:
     data = get_request_user(user_id)
     if data[1] == 'None':
         return "У вас нету запросов"
-    text = f"""
-Текущий запрос:
-предмет: {search_item_name_by_id(data[1])}
-цена: {data[2]} \n"""
-    if data[3] != 'None':
-        text += f"Качество: {QUALITY[int(data[3])]} \n"
-    if data[4] == "All":
-        text += "Уровень заточки: Любой"
+    elif is_it_artifact(data[1]):
+        return text_get_curent_lot_artefact.format(
+            search_item_name_by_id(data[1]),
+            data[2],
+            QUALITY[data[3]],
+            "Любая" if data[4] == "All" else data[4])
     else:
-        text += f"Уровень заточки: {data[4]}"
-    return text
+        return text_get_curent_lot_artefact.format(
+            search_item_name_by_id(data[1]),
+            data[2]
+        )
 
 
 average_price_artifact = """
@@ -72,29 +83,29 @@ average_price_artifact_start = """
 """
 
 additional_features = {
-"RADIATION_ACC" : "-Радиация",
-"PSYCHO_ACC" : "-Пси.излучение",
-"MAX_WEIGHT_BONUS" : "+Вес",
-"THERMAL_ACC" : "-Температура",
-"HEALTH_BONUS" : "+Живучесть",
-"REGENERATION_BONUS" : "+Регенерация",
-"SPEED_MOD" : "+Скорость",
-"STAMINA_BONUS" : "+Выносливость",
-"STAMINA_REGENERATION" : "+Восст.Выносливости",
-"REACTION_TO_BURN" : "+Реакция на ожог",
-"REACTION_TO_ELECTROSHOCK" : "Реакция на электро",
-"HEAL_EFFICIENCY" : "Эффективка лечения",
-"EXPLOSION_DMG" : "+Защита от взрыва",
-"BULLET_DMG" : "+Пулестойкость",
-"BIOLOGICAL_ACC": "-Био",
-"THERMAL_DAMAGE_PROTECTION": "Сопр-температуре",
-"BLEEDING_ACC": "-Кровотечение",
-"REACTION_TO_TEAR": "Реакция.разрыв",
-"RADIATION_DAMAGE_PROTECTION": "Защита от рады",
-"PSYCHO_DAMAGE_PROTECTION": "Защита от пси",
-"BIOLOGICAL_DAMAGE_PROTECTION" : "Защита от био",
-"TEAR_DMG" : "+Защита от разрыва",
-"REACTION_TO_CHEMICAL_BURN": " Реакция хим.ожог"
+    "RADIATION_ACC": "-Радиация",
+    "PSYCHO_ACC": "-Пси.излучение",
+    "MAX_WEIGHT_BONUS": "+Вес",
+    "THERMAL_ACC": "-Температура",
+    "HEALTH_BONUS": "+Живучесть",
+    "REGENERATION_BONUS": "+Регенерация",
+    "SPEED_MOD": "+Скорость",
+    "STAMINA_BONUS": "+Выносливость",
+    "STAMINA_REGENERATION": "+Восст.Выносливости",
+    "REACTION_TO_BURN": "+Реакция на ожог",
+    "REACTION_TO_ELECTROSHOCK": "Реакция на электро",
+    "HEAL_EFFICIENCY": "Эффективка лечения",
+    "EXPLOSION_DMG": "+Защита от взрыва",
+    "BULLET_DMG": "+Пулестойкость",
+    "BIOLOGICAL_ACC": "-Био",
+    "THERMAL_DAMAGE_PROTECTION": "Сопр-температуре",
+    "BLEEDING_ACC": "-Кровотечение",
+    "REACTION_TO_TEAR": "Реакция.разрыв",
+    "RADIATION_DAMAGE_PROTECTION": "Защита от рады",
+    "PSYCHO_DAMAGE_PROTECTION": "Защита от пси",
+    "BIOLOGICAL_DAMAGE_PROTECTION": "Защита от био",
+    "TEAR_DMG": "+Защита от разрыва",
+    "REACTION_TO_CHEMICAL_BURN": " Реакция хим.ожог"
 }
 
 WELCOME_TEXT = """
