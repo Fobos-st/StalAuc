@@ -30,19 +30,19 @@ auction_choice_button = [
     [types.InlineKeyboardButton(text='Графики цены', callback_data='auction_chart_price')],
     [types.InlineKeyboardButton(text='Средняя цена', callback_data='auction_average_price')],
 ]
-auction_choice_keyboard = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+auction_choice_keyboard = types.InlineKeyboardMarkup(inline_keyboard=auction_choice_button)
 
 
 background_process_choice_button_0 = [
     [types.InlineKeyboardButton(text='Добавить предмет', callback_data='auction_check_price')],
 ]
-background_process_choice_keyboard_0 = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+background_process_choice_keyboard_0 = types.InlineKeyboardMarkup(inline_keyboard=background_process_choice_button_0)
 
 background_process_choice_button_1 = [
     [types.InlineKeyboardButton(text='Изменить предмет', callback_data='auction_check_price')],
     [types.InlineKeyboardButton(text='Удалить предмет', callback_data='auction_check_price')]
 ]
-background_process_choice_keyboard_1 = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+background_process_choice_keyboard_1 = types.InlineKeyboardMarkup(inline_keyboard=background_process_choice_button_1)
 
 
 additional_inline_button = [
