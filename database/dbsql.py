@@ -65,13 +65,13 @@ async def check_user_in_db_raffle(user_id: int) -> bool:
 
 
 def check_user_request_lot(user_id: int) -> bool:
-    cursor.execute(f"SELECT user_id FROM users WHERE user_id = {user_id}")
+    cursor.execute(f"SELECT item_id FROM users WHERE user_id = {user_id}")
     result = cursor.fetchall()
-    if result[1] == "None":
+    print(result)
+    if result[0][0] == "None":
         return True
     else:
         return False
-
 
 
 async def reg_in_sweepstakes(user_id: int, user_name: str, game_nickname=None) -> str:
