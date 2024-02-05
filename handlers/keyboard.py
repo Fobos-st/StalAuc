@@ -22,8 +22,28 @@ quality_inline_button = [
     [types.InlineKeyboardButton(text='Исключительный', callback_data='4')],
     [types.InlineKeyboardButton(text='Легендарный', callback_data='5')],
 ]
-
 quality_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+
+
+auction_choice_button = [
+    [types.InlineKeyboardButton(text='Проверка цены', callback_data='auction_check_price')],
+    [types.InlineKeyboardButton(text='Графики цены', callback_data='auction_chart_price')],
+    [types.InlineKeyboardButton(text='Средняя цена', callback_data='auction_average_price')],
+]
+auction_choice_keyboard = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+
+
+background_process_choice_button_0 = [
+    [types.InlineKeyboardButton(text='Добавить предмет', callback_data='auction_check_price')],
+]
+background_process_choice_keyboard_0 = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+
+background_process_choice_button_1 = [
+    [types.InlineKeyboardButton(text='Изменить предмет', callback_data='auction_check_price')],
+    [types.InlineKeyboardButton(text='Удалить предмет', callback_data='auction_check_price')]
+]
+background_process_choice_keyboard_1 = types.InlineKeyboardMarkup(inline_keyboard=quality_inline_button)
+
 
 additional_inline_button = [
     [types.InlineKeyboardButton(text=f'{1}', callback_data=f'{1}'),
@@ -41,15 +61,14 @@ additional_inline_button = [
     [types.InlineKeyboardButton(text=f'{13}', callback_data=f'{13}'),
      types.InlineKeyboardButton(text=f'{14}', callback_data=f'{14}'),
      types.InlineKeyboardButton(text=f'{15}', callback_data=f'{15}')]
-
 ]
 additional_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=additional_inline_button)
 additional_inline_keyboard.add(types.InlineKeyboardButton(text='Без разницы', callback_data='All'))
 
+
 cancel_button = [
     [types.InlineKeyboardButton(text='Отмена❌', callback_data='Отмена')]
 ]
-
 cancel_inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=cancel_button)
 
 
