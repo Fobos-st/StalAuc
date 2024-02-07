@@ -187,10 +187,11 @@ async def get_auction_average_price(item_id) -> str:
         return f"Средняя цена за последние 7 дней: {'{0:,}'.format(int(sum_items / count_items))} \nАктуальная цена на аукционе: Отсуствует информация"
 
 
-async def cmd_average(message: types.Message):
+async def cmd_average(callback_query: types.CallbackQuery):
     await ItemName.text.set()
-    await message.answer(input_item_name_messeage,
-                         reply_markup=cancel_inline_keyboard)
+    await bot.send_message(callback_query.from_user.id, input_item_name_messeage,
+                           reply_markup=cancel_inline_keyboard)
+    await callback_query.message.delete()
 
 
 async def get_name(message: types.Message, state: FSMContext):
@@ -225,6 +226,6 @@ async def selection_item(callback_query: types.CallbackQuery, state: FSMContext)
 
 
 def register_client_handlers_average_price(dp: Dispatcher):
-    dp.register_message_handler(cmd_average, text='Средняя цена')
+    dp.register_callback_query_handler(cmd_average, text='auction_average_price')
     dp.register_message_handler(get_name, state=ItemName.text)
     dp.register_callback_query_handler(selection_item, state=ItemName.text)
