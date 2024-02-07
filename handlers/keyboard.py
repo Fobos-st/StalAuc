@@ -2,14 +2,10 @@ from aiogram import types
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 main_button = [
-    [types.KeyboardButton(text="Проверка цены"),
-     types.KeyboardButton(text="Ожидание предмета")],
-    [types.KeyboardButton(text="Текущий запрос"),
-     types.KeyboardButton(text="Удалить запрос")],
-    [types.KeyboardButton(text="Средняя цена"),
-     types.KeyboardButton(text="История цен")],
-    [types.KeyboardButton(text="Перекуп таблица"),
-     types.KeyboardButton(text="Финанс.помощь проекту")]
+    [types.KeyboardButton(text="Аукцион"),
+     types.KeyboardButton(text="Лот-уведомление")],
+    [types.KeyboardButton(text="Финанс.помощь проекту")],
+    [types.KeyboardButton(text="Перекуп таблица")]
 ]
 main_kb = types.ReplyKeyboardMarkup(keyboard=main_button, resize_keyboard=True, one_time_keyboard=False)
 
