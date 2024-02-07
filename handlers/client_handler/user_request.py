@@ -9,7 +9,10 @@ from database.dbsql import delete_request
 from database.dbsql import update_sqlite_table
 from text import current_request
 from ..keyboard import cancel_inline_keyboard, get_keyboard_item
-from ..keyboard import main_kb, quality_inline_keyboard, additional_inline_keyboard
+from ..keyboard import (main_kb, quality_inline_keyboard,
+                        additional_inline_keyboard,
+                        background_process_choice_keyboard_0,
+                        background_process_choice_keyboard_1)
 
 
 class MakeRequestUser(StatesGroup):
@@ -20,22 +23,16 @@ class MakeRequestUser(StatesGroup):
     additional = State()
 
 
-async def current_user_request(message: types.Message):
-    await message.answer(current_request(message.from_user.id))
+async def delete_current_user_request(callback_query: types.CallbackQuery):
+    delete_request(callback_query.from_user.id)
+    await callback_query.message.edit_text(text="Text background_process",
+                                           reply_markup=background_process_choice_keyboard_0)
 
 
-async def delete_current_user_request(message: types.Message):
-    delete_request(message.from_user.id)
-    await message.answer("Запрос успешно очищен")
-
-
-async def cmd_item_check_check_item(message: types.Message):
-    if message.text == "Ожидание предмета":
-        await MakeRequestUser.item_name.set()
-        await message.answer(text.input_item_name_messeage,
-                             reply_markup=cancel_inline_keyboard)
-    else:
-        pass
+async def cmd_item_check_check_item(callback_query: types.CallbackQuery):
+    await MakeRequestUser.item_name.set()
+    await bot.send_message(callback_query.from_user.id, text.input_item_name_messeage,
+                           reply_markup=cancel_inline_keyboard)
 
 
 # @dp.message_handler(content_types=["text"], state=MakeRequestUser.item_name)
@@ -82,16 +79,15 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
         await state.update_data(price=text_user_msg)
         data = await state.get_data()
         if is_it_artifact(data["item_id"]):
-            await message.answer('Отлично, теперь надо выбрать качество артефакта и его потанциал при необходимости')
             await MakeRequestUser.next()
             await message.answer(
-                'При появления артфеакта подходящего для вас по цене будут отмечаться как артефакты и более '
+                'Выберете редкость \nПри появления артфеакта подходящего для вас по цене будут отмечаться как артефакты и более '
                 'высокой редкости так и выбранной изначально', reply_markup=quality_inline_keyboard)
         else:
             update_sqlite_table(message.from_user.id, data['item_id'], data['price'])
-            await message.answer(text.appened_user_request.format(search_item_name_by_id(data['item_id']),
-                                                                  data['price']), reply_markup=main_kb)
             await state.finish()
+            await message.answer(text=f"Ваш текущий лот: \n {current_request(message.from_user.id)}",
+                                 reply_markup=background_process_choice_keyboard_1)
     except ValueError:
         await message.answer('Неправильная форма записи', reply_markup=main_kb)
 
@@ -100,6 +96,7 @@ async def reg_request_in_db_two(message: types.Message, state: FSMContext):
 async def reg_request_in_db_three(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(quality=callback_query.data)
     await MakeRequestUser.next()
+    await callback_query.message.delete()
     await bot.send_message(chat_id=callback_query.from_user.id,
                            text='Выберите от 0-15 качество артефакта',
                            reply_markup=additional_inline_keyboard)
@@ -107,6 +104,7 @@ async def reg_request_in_db_three(callback_query: types.CallbackQuery, state: FS
 
 # @dp.callback_query_handler(state=MakeRequestUser.additional)
 async def reg_request_in_db_four(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
     await state.update_data(additional=callback_query.data)
     data = await state.get_data()
     additional = 'Любая' if data['additional'] == 'All' else f"от {data['additional']} и более"
@@ -116,21 +114,17 @@ async def reg_request_in_db_four(callback_query: types.CallbackQuery, state: FSM
                         quality=data['quality'],
                         additional=data['additional'])
 
-    await bot.send_message(callback_query.from_user.id, text.appened_user_request_artefact.format(
-        search_item_name_by_id(data['item_id']),
-        data['price'],
-        text.QUALITY[int(data['quality'])],
-        additional
-    ), reply_markup=main_kb)
+    await bot.send_message(callback_query.from_user.id,
+                           text=f"Ваш текущий лот: \n {current_request(callback_query.from_user.id)}",
+                           reply_markup=background_process_choice_keyboard_1)
     await state.finish()
 
 
 def register_client_handlers_user_request(dp: Dispatcher):
-    dp.register_message_handler(cmd_item_check_check_item, content_types=['text'], text="Ожидание предмета")
+    dp.register_callback_query_handler(cmd_item_check_check_item, text="reg_user_request")
+    dp.register_callback_query_handler(delete_current_user_request, text="del_user_request")
     dp.register_message_handler(get_item_name, content_types=['text'], state=MakeRequestUser.item_name)
     dp.register_callback_query_handler(reg_request_in_db_one, state=MakeRequestUser.item_name)
     dp.register_message_handler(reg_request_in_db_two, content_types=["text"], state=MakeRequestUser.price)
     dp.register_callback_query_handler(reg_request_in_db_three, state=MakeRequestUser.quality)
     dp.register_callback_query_handler(reg_request_in_db_four, state=MakeRequestUser.additional)
-    dp.register_message_handler(current_user_request, text='Текущий запрос')
-    dp.register_message_handler(delete_current_user_request, text="Удалить запрос")
