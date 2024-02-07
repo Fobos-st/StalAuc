@@ -34,13 +34,13 @@ auction_choice_keyboard = types.InlineKeyboardMarkup(inline_keyboard=auction_cho
 
 
 background_process_choice_button_0 = [
-    [types.InlineKeyboardButton(text='Добавить предмет', callback_data='auction_check_price')],
+    [types.InlineKeyboardButton(text='Добавить предмет', callback_data='reg_user_request')],
 ]
 background_process_choice_keyboard_0 = types.InlineKeyboardMarkup(inline_keyboard=background_process_choice_button_0)
 
 background_process_choice_button_1 = [
-    [types.InlineKeyboardButton(text='Изменить предмет', callback_data='auction_check_price')],
-    [types.InlineKeyboardButton(text='Удалить предмет', callback_data='auction_check_price')]
+    [types.InlineKeyboardButton(text='Изменить предмет', callback_data='reg_user_request')],
+    [types.InlineKeyboardButton(text='Удалить предмет', callback_data='del_user_request')]
 ]
 background_process_choice_keyboard_1 = types.InlineKeyboardMarkup(inline_keyboard=background_process_choice_button_1)
 
