@@ -281,15 +281,14 @@ async def create_table_excel(days, user_id, item_id, minuts):
 
 
 # @dp.message_handler(text='История цен')
-async def cmd_create_chart(message: types.Message):
-    if message.text == "История цен":
-        await message.answer("Мини гайд по графику https://youtu.be/UCaeJpC_s4A?si=6BftfsApqzudVzwu, так-же стоит учитывать что создание графика достаточно долгое дело")
-        await CreateChart.item_id.set()
-        await message.answer('Советую не создавать график с историей цен артефакта(Так как нету сортировки)')
-        await message.answer(text.input_item_name_messeage,
-                             reply_markup=cancel_inline_keyboard)
-    else:
-        pass
+async def cmd_create_chart(callback_query: types.CallbackQuery):
+    await bot.send_message(callback_query.from_user.id,
+                           "Мини гайд по графику https://youtu.be/UCaeJpC_s4A?si=6BftfsApqzudVzwu, так-же стоит учитывать что создание графика достаточно долгое дело")
+    await CreateChart.item_id.set()
+    await callback_query.answer('Советую не создавать график с историей цен артефакта(Так как нету сортировки)')
+    await bot.send_message(callback_query.from_user.id, text.input_item_name_messeage,
+                           reply_markup=cancel_inline_keyboard)
+    await callback_query.message.delete()
 
 
 # @dp.message_handler(content_types=["text"], state=CreateChart.item_id)
@@ -397,9 +396,8 @@ async def get_count_timing(message: types.Message, state: FSMContext):
 
 
 def register_client_handlers_price_history_chart(dp: Dispatcher):
-    dp.register_message_handler(cmd_create_chart, text='История цен')
+    dp.register_callback_query_handler(cmd_create_chart, text='auction_chart_price')
     dp.register_message_handler(get_item_id_one, state=CreateChart.item_id)
     dp.register_callback_query_handler(get_item_id_two, state=CreateChart.item_id)
     dp.register_message_handler(get_count_days, state=CreateChart.days)
     dp.register_message_handler(get_count_timing, state=CreateChart.timing)
-
