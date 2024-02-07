@@ -25,7 +25,7 @@ class MakeRequestUser(StatesGroup):
 
 async def delete_current_user_request(callback_query: types.CallbackQuery):
     delete_request(callback_query.from_user.id)
-    await callback_query.message.edit_text(text="Text background_process",
+    await callback_query.message.edit_text(text="Вы ещё не выбирали предметы",
                                            reply_markup=background_process_choice_keyboard_0)
 
 
