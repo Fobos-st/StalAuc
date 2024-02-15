@@ -1,5 +1,6 @@
 import asyncio
 import json
+from json import JSONDecodeError
 from datetime import datetime, timedelta
 
 from aiogram import types, Dispatcher
@@ -70,6 +71,7 @@ async def get_auction_average_price(item_id, count_day) -> str:
         count_items = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
         for a in range(max_iteration):
+            print(1)
             params = {"limit": "100", "additional": "true", "offset": f"{a * 100}"}
             url = f"https://eapi.stalcraft.net/ru/auction/{item_id}/history"
             lots = await get_data_item_more_100(url, params)
@@ -126,7 +128,7 @@ async def get_auction_average_price(item_id, count_day) -> str:
 
                 else:
                     break
-        text = average_price_artifact_start.format(count_day, get_and_average_price_artifact[str(count_day)[-1]])
+        text = average_price_artifact_start.format(count_day, get_and_average_price_artifact[count_day % 10])
         for i in range(6):
             if sum(count_items[i]) != 0:
                 text += QUALITY_AVERAGE_PRICE[i]
@@ -226,13 +228,16 @@ async def get_count_days(callback_query: types.CallbackQuery, state: FSMContext)
 
 
 async def send_average_price(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_query.message.delete()
-    await state.update_data(CountDays=callback_query.data)
-    data = await state.get_data()
-    await bot.send_chat_action(callback_query.from_user.id, ChatActions.TYPING)
-    text_msg = await get_auction_average_price(data["text"], int(data["CountDays"][3:]))
-    await state.finish()
-    await bot.send_message(callback_query.from_user.id, text_msg)
+    try:
+        await state.update_data(CountDays=callback_query.data)
+        data = await state.get_data()
+        await state.finish()
+        await bot.send_chat_action(callback_query.from_user.id, ChatActions.TYPING)
+        await callback_query.message.delete()
+        text_msg = await get_auction_average_price(data["text"], int(data["CountDays"][3:]))
+        await bot.send_message(callback_query.from_user.id, text_msg)
+    except JSONDecodeError:
+        await bot.send_message(callback_query.from_user.id, "К сожалению возникла ошибка при работе с вашим запросом")
 
 
 def register_client_handlers_average_price(dp: Dispatcher):
