@@ -18,7 +18,8 @@ from text import (get_and_average_price_artifact,
                   average_price_artifact_start,
                   QUALITY_AVERAGE_PRICE,
                   TIER_AVERAGE_PRICE,
-                  input_item_name_messeage)
+                  input_item_name_messeage,
+                  print_exception)
 from ..keyboard import cancel_inline_keyboard, main_kb, choice_count_days_keyboard
 
 
@@ -196,10 +197,13 @@ async def get_auction_average_price(item_id, count_day) -> str:
 
 
 async def cmd_average(callback_query: types.CallbackQuery):
-    await ItemName.text.set()
-    await bot.send_message(callback_query.from_user.id, input_item_name_messeage,
-                           reply_markup=cancel_inline_keyboard)
-    await callback_query.message.delete()
+    try:
+        await ItemName.text.set()
+        await bot.send_message(callback_query.from_user.id, input_item_name_messeage,
+                               reply_markup=cancel_inline_keyboard)
+        await callback_query.message.delete()
+    except Exception:
+        await bot.send_message(1254191582, print_exception())
 
 
 async def get_name(message: types.Message, state: FSMContext):
@@ -220,11 +224,14 @@ async def get_name(message: types.Message, state: FSMContext):
 
 
 async def get_count_days(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_query.message.delete()
-    await state.update_data(text=callback_query.data)
-    await ItemName.next()
-    await bot.send_message(callback_query.from_user.id, "За какой срок времени вывести информацию",
-                           reply_markup=choice_count_days_keyboard)
+    try:
+        await callback_query.message.delete()
+        await state.update_data(text=callback_query.data)
+        await ItemName.next()
+        await bot.send_message(callback_query.from_user.id, "За какой срок времени вывести информацию",
+                               reply_markup=choice_count_days_keyboard)
+    except Exception:
+        await bot.send_message(1254191582, print_exception())
 
 
 async def send_average_price(callback_query: types.CallbackQuery, state: FSMContext):
@@ -235,9 +242,15 @@ async def send_average_price(callback_query: types.CallbackQuery, state: FSMCont
         await bot.send_chat_action(callback_query.from_user.id, ChatActions.TYPING)
         await callback_query.message.delete()
         text_msg = await get_auction_average_price(data["text"], int(data["CountDays"][3:]))
+        raise AttributeError
         await bot.send_message(callback_query.from_user.id, text_msg)
     except JSONDecodeError:
-        await bot.send_message(callback_query.from_user.id, "К сожалению возникла ошибка при работе с вашим запросом")
+        await bot.send_message(callback_query.from_user.id,
+            f"К сожалению в ходе работы вашего запроса произошла ошибка\nЗапрос на среднюю цену\nПредмет:{database.dbitem.search_item_name_by_id(data['text'])}")
+    except Exception:
+        await bot.send_message(1254191582, print_exception())
+        await bot.send_message(callback_query.from_user.id,
+            f"К сожалению в ходе работы вашего запроса произошла ошибка\nЗапрос на среднюю цену\nПредмет:{database.dbitem.search_item_name_by_id(data['text'])}")
 
 
 def register_client_handlers_average_price(dp: Dispatcher):
