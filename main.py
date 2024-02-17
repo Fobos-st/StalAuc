@@ -30,6 +30,7 @@ handlers.admin_handler.update.register_admin_handler_update(dp)
 
 
 if __name__ == '__main__':
+    dbsql.delete_items()
     logging.basicConfig(level=logging.INFO)
     dbsql.create_table()
     create_bot_factory()
