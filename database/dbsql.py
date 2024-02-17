@@ -1,4 +1,5 @@
 import sqlite3
+from database.dbitem import search_item_name_by_id
 
 db = sqlite3.connect('serv.db')
 cursor = db.cursor()
@@ -134,6 +135,22 @@ def update_sqlite_table(user_id, item, price, quality=None, additional="All"):
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite \n",
               error)
+
+
+def delete_items():
+    try:
+        cursor.execute('SELECT * FROM users GROUP BY user_id')
+        users = cursor.fetchall()
+        counter = 0
+        for user in users:
+            if search_item_name_by_id(user[1]) == None:
+                delete_request(user[0])
+                counter += 1
+    except sqlite3.Error as error:
+        print("Ошибка при работе с SQLite \n",
+              error)
+    else:
+        print(f"Процесс удаления прошёл успешно\nКоличество удалений:{counter}")
 
 
 def get_request_user(user_id: int):
