@@ -22,6 +22,7 @@ import openpyxl
 import database.dbitem
 import handlers.keyboard
 import text
+from text import print_exception
 from API_request import make_http_get_request
 from config import URL_GET_HISTORY_AUC_LOTS, get_headers
 from create_bot import bot
@@ -343,56 +344,77 @@ async def get_count_days(message: types.Message, state: FSMContext):
 
 # @dp.message_handler(state=CreateChart.timing)
 async def get_count_timing(message: types.Message, state: FSMContext):
+    msg_first = await message.answer("Если в ходе работы ваш запрос невыполнется то вы получите уведомление об этом")
+    data = await state.get_data()
+    await state.finish()
     try:
-        if 15 <= int(message.text) <= 720:
-            data = await state.get_data()
+        try:
+            if 15 <= int(message.text) <= 720:
+                msg = await message.answer('Собираю информцию')
+                await asyncio.sleep(int(data['days']) / 10)
+                await msg.delete()
+                await message.answer('Рисую график')
+                await asyncio.sleep(int(data['days']) / 10)
+                filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], int(message.text))
+                await bot.send_message(1254191582, filename)
+
+                with open(f'{filename}Свечевой.xlsx', 'rb') as file:
+                    await bot.send_document(message.from_user.id, file)
+                with open(f'{filename}Линейный.xlsx', 'rb') as file:
+                    await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
+
+                os.remove(f'{filename}Линейный.xlsx')
+                os.remove(f'{filename}Свечевой.xlsx')
+                await msg_first.delete()
+
+            else:
+                msg = await message.answer('Собираю информцию')
+                await asyncio.sleep(int(data['days']) / 10)
+                await msg.delete()
+                await message.answer('Рисую график')
+                await asyncio.sleep(int(data['days']) / 10)
+                filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], 1440)
+                await bot.send_message(1254191582, filename)
+
+                with open(f'{filename}Свечевой.xlsx', 'rb') as file:
+                    await bot.send_document(message.from_user.id, file)
+                with open(f'{filename}Линейный.xlsx', 'rb') as file:
+                    await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
+                os.remove(f'{filename}Линейный.xlsx')
+                os.remove(f'{filename}Свечевой.xlsx')
+                await msg_first.delete()
+
+        except Exception:
+            await message.answer(f"К сожалению в ходе работы вашего запроса произошла ошибка\n\nЗапрос:\n"
+                                 f"Тип запроса: Создание графика цены \n"
+                                 f"Предмет:{database.dbitem.search_item_name_by_id(data['item_id'])} \n"
+                                 f"Количество дней:{data['days']}\n"
+                                 f"Время жизни свечи:{f'{message.text}минут' if 15 <= int(message.text) <= 720 else '24 часа'}")
+            await bot.send_message(1254191582, print_exception())
+
+    except ValueError:
+        try:
+            await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
             msg = await message.answer('Собираю информцию')
             await asyncio.sleep(int(data['days']) / 10)
             await msg.delete()
-            await message.answer('Рисую график')
-            await asyncio.sleep(int(data['days']) / 10)
-            filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], int(message.text))
-            await bot.send_message(1254191582, filename)
-            await state.finish()
-            with open(f'{filename}Свечевой.xlsx', 'rb') as file:
-                await bot.send_document(message.from_user.id, file)
-            with open(f'{filename}Линейный.xlsx', 'rb') as file:
-                await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
-            os.remove(f'{filename}Линейный.xlsx')
-            os.remove(f'{filename}Свечевой.xlsx')
-        else:
-            data = await state.get_data()
-            msg = await message.answer('Собираю информцию')
-            await asyncio.sleep(int(data['days']) / 10)
-            await msg.delete()
+            await bot.send_chat_action(message.from_user.id, ChatActions.UPLOAD_DOCUMENT)
             await message.answer('Рисую график')
             await asyncio.sleep(int(data['days']) / 10)
             filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], 1440)
             await bot.send_message(1254191582, filename)
+            await state.finish()
+
             with open(f'{filename}Свечевой.xlsx', 'rb') as file:
                 await bot.send_document(message.from_user.id, file)
             with open(f'{filename}Линейный.xlsx', 'rb') as file:
                 await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
             os.remove(f'{filename}Линейный.xlsx')
             os.remove(f'{filename}Свечевой.xlsx')
-    except ValueError:
-        data = await state.get_data()
-        await bot.send_chat_action(message.from_user.id, ChatActions.TYPING)
-        msg = await message.answer('Собираю информцию')
-        await asyncio.sleep(int(data['days']) / 10)
-        await msg.delete()
-        await bot.send_chat_action(message.from_user.id, ChatActions.UPLOAD_DOCUMENT)
-        await message.answer('Рисую график')
-        await asyncio.sleep(int(data['days']) / 10)
-        filename = await create_table_excel(data['days'], message.from_user.id, data['item_id'], 1440)
-        await bot.send_message(1254191582, filename)
-        await state.finish()
-        with open(f'{filename}Свечевой.xlsx', 'rb') as file:
-            await bot.send_document(message.from_user.id, file)
-        with open(f'{filename}Линейный.xlsx', 'rb') as file:
-            await bot.send_document(message.from_user.id, file, reply_markup=handlers.keyboard.main_kb)
-        os.remove(f'{filename}Линейный.xlsx')
-        os.remove(f'{filename}Свечевой.xlsx')
+            await msg_first.delete()
+        except Exception:
+            await message.answer(f"К сожалению в ходе работы вашего запроса произошла ошибка\nЗапрос на график цены\nПредмет:{database.dbitem.search_item_name_by_id(data['item_id'])}")
+            await bot.send_message(1254191582, print_exception())
 
 
 def register_client_handlers_price_history_chart(dp: Dispatcher):
