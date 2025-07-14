@@ -15,7 +15,7 @@ HEADERS_2 = {
 HEADERS_LIST = [HEADERS, HEADERS_1, HEADERS_2]
 number_headers_list = 0
 
-BOT_TOKEN = '6290427125:AAHHO49ChtAcCWY6pwHh8zn5rI2Lil8AtA4'  #'6693090153:AAFDYxMkhCam88m6zp-TgHQur93AuooI5YQ'
+BOT_TOKEN = ''  #ВАШ ТОКЕН
 
 URL_GET_ACTIVE_AUC_LOTS = "https://eapi.stalcraft.net/ru/auction/{}/lots"
 URL_GET_HISTORY_AUC_LOTS = "https://eapi.stalcraft.net/ru/auction/{}/history"
